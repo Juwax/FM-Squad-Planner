@@ -2454,11 +2454,15 @@ Wichtig: position muss eine dieser Abkürzungen sein. nation als Emoji-Flagge (z
 
   try{
     const PROXY=window.CLAUDE_PROXY||'https://api.anthropic.com/v1/messages';
+    // When using proxy, only send Content-Type (proxy adds the API key)
+    const fetchHeaders=PROXY.includes('workers.dev')||PROXY.includes('cloudflare')
+      ? {'Content-Type':'application/json'}
+      : headers;
     const resp=await fetch(PROXY,{
       method:'POST',
-      headers,
+      headers:fetchHeaders,
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-sonnet-4-6',
         max_tokens:2000,
         messages:[{
           role:'user',
