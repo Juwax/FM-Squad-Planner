@@ -2559,7 +2559,7 @@ async function doSearch(q){
     const headers={'Content-Type':'application/json'};
     if(apiKey) headers['x-api-key']=apiKey;
     const PROXY=window.CLAUDE_PROXY||'https://api.anthropic.com/v1/messages';
-    const resp=await fetch(PROXY,{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:`Search fminside.net for FM26 player "${q}". Find profiles at fminside.net/players/7-fm262/NNNN-name. Return ONLY valid JSON array, no markdown. Max 8 results. Format: [{"name":"...","age":N,"position":"TW|IV|LAV|RAV|DM|ZM|OM|LA|RA|ST|HS","club":"...","fmId":"NNNNNN","nation":"flag-emoji"}]. fmId is the numeric URL part. Return [] if nothing found.`}]})});
+    const resp=await fetch(PROXY,{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:`Search fminside.net for FM26 player "${q}". Find profiles at fminside.net/players/7-fm262/NNNN-name. Return ONLY valid JSON array, no markdown. Max 8 results. Format: [{"name":"...","age":N,"position":"TW|IV|LAV|RAV|DM|ZM|OM|LA|RA|ST|HS","club":"...","fmId":"NNNNNN","nation":"flag-emoji"}]. fmId is the numeric URL part. Return [] if nothing found.`}]})});
     if(!resp.ok) throw new Error('HTTP '+resp.status);
     const data=await resp.json();
     const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
