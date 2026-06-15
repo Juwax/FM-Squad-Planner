@@ -288,7 +288,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
   <div class="lpanel" id="lpanel">
     <div class="pctrls">
       <div class="pctrl-row">
-        <button class="btn b-g b-sm" onclick="saveFormationTab()" title="Aktuelle Formation als eigenen Tab speichern">💾 Tab</button>
+        <button class="btn b-g b-sm" onclick="saveFormationTab()" title="Aktuelle Formation speichern">💾 Formation speichern</button>
         <button class="btn b-g b-sm" id="noteToggle" onclick="toggleNote()" title="Taktik-Notizen">📝</button>
       </div>
       <div class="ftabs" id="ftabs"></div>
@@ -590,7 +590,7 @@ const LANGS={
     tabSavePrompt:'Formations-Tab Name:',renameFPrompt:'Formation benennen:',
     renameTeamPrompt:'Vereinsname:',
     savePrompt:'Plan-Name:',
-    deleteTabConfirm:'Tab löschen?',
+    deleteTabConfirm:'Formation löschen?',
     noTalent:'Keine Talente',slots11:'Slots',free:'frei',
     noU23:'Keine U23',
     altNeben:'+ Neben',
@@ -701,7 +701,7 @@ const LANGS={
     tabSavePrompt:'Formation tab name:',renameFPrompt:'Name this formation:',
     renameTeamPrompt:'Club name:',
     savePrompt:'Plan name:',
-    deleteTabConfirm:'Delete tab?',
+    deleteTabConfirm:'Delete formation?',
     noTalent:'No talents',slots11:'Slots',free:'free',
     noU23:'No U23',
     altNeben:'+ Alt',
@@ -809,7 +809,7 @@ const LANGS={
     tabSavePrompt:'Nombre del tab de formación:',renameFPrompt:'Nombre de la formación:',
     renameTeamPrompt:'Nombre del club:',
     savePrompt:'Nombre del plan:',
-    deleteTabConfirm:'¿Eliminar tab?',
+    deleteTabConfirm:'¿Eliminar formación?',
     noTalent:'Sin talentos',slots11:'Slots',free:'libre',
     noU23:'Sin sub-23',
     altNeben:'+ Alt',
@@ -1207,26 +1207,29 @@ function renderFTabs(){
   const custom=getCustomFormationTabs();
   document.getElementById('ftabs').innerHTML=[
     ...Object.keys(BUILTIN_FORMS).map(f=>`<div class="ft${f===formation?' on':''}" onclick="setFormation('${f}')">${f}</div>`),
-    ...custom.map((cf,i)=>`<div class="ft${cf.id===formation?' on':''}" style="color:var(--gold2);border-color:rgba(232,160,32,.3);display:flex;align-items:center;gap:4px;padding-right:4px" onclick="loadFormationTab(${i})" title="${cf.name}">${cf.name}<span onclick="event.stopPropagation();deleteFormationTab(${i})" style="font-size:9px;opacity:.5;cursor:pointer;padding:1px 3px;border-radius:2px;transition:all .15s;font-family:var(--ff)" onmouseover="this.style.opacity=1;this.style.background='rgba(231,76,60,.3)'" onmouseout="this.style.opacity=.5;this.style.background=''" title="Tab löschen">✕</span></div>`)
+    ...custom.map((cf,i)=>`<div class="ft${cf.id===formation?' on':''}" style="color:var(--gold2);border-color:rgba(232,160,32,.3);display:flex;align-items:center;gap:4px;padding-right:4px" onclick="loadFormationTab(${i})" title="${cf.name}">${cf.name}<span onclick="event.stopPropagation();deleteFormationTab(${i})" style="font-size:9px;opacity:.5;cursor:pointer;padding:1px 3px;border-radius:2px;transition:all .15s;font-family:var(--ff)" onmouseover="this.style.opacity=1;this.style.background='rgba(231,76,60,.3)'" onmouseout="this.style.opacity=.5;this.style.background=''" title="Formation löschen">✕</span></div>`)
   ].join('');
   // tbadge removed
 }
 const CFT_KEY='fm26_formation_tabs';
 function getCustomFormationTabs(){ try{return JSON.parse(localStorage.getItem(CFT_KEY)||'[]');}catch{return[];} }
 function saveFormationTab(){
-  const defaultName=(formationName||formation||'').trim();
-  // Only save builtin formations or named custom formations
-  if(!defaultName||defaultName.startsWith('cf_')){
-    showToast('Bitte zuerst die Formation benennen (Klick auf Formation-Tab → Umbenennen)','var(--gold2)');
-    return;
+  // If no name set yet, ask for one directly
+  let name=(formationName&&!formationName.startsWith('cf_'))?formationName:'';
+  if(!name){
+    const v=prompt('Formation benennen:',formation||'Meine Formation');
+    if(!v||!v.trim()) return;
+    name=v.trim();
   }
+  if(name.startsWith('cf_')){ showToast('Bitte einen anderen Namen wählen','var(--gold2)'); return; }
   const tabs=getCustomFormationTabs();
   const id='cf_'+Date.now();
-  const snap={id,name:defaultName,formation,formationName:defaultName,customRows:JSON.parse(JSON.stringify(customRows)),builtinSnapshot:{[formation]:JSON.parse(JSON.stringify(BUILTIN_FORMS[formation]||[]))}};
+  const snap={id,name,formation,formationName:name,customRows:JSON.parse(JSON.stringify(customRows)),builtinSnapshot:{[formation]:JSON.parse(JSON.stringify(BUILTIN_FORMS[formation]||[]))}};
   tabs.push(snap);
   localStorage.setItem(CFT_KEY,JSON.stringify(tabs));
+  formationName=name;
   renderFTabs();
-  showToast('✓ Formation "'+defaultName+'" als Tab gespeichert','var(--gold2)');
+  showToast('✓ Formation "'+name+'" gespeichert','var(--gold2)');
 }
 function loadFormationTab(i){
   const tabs=getCustomFormationTabs();
@@ -1240,17 +1243,18 @@ function loadFormationTab(i){
 }
 function deleteFormationTab(i){
   const tabs=getCustomFormationTabs();
+  const deletedId=tabs[i]?.id;
   const name=tabs[i]?.name||'Tab';
   tabs.splice(i,1);
   localStorage.setItem(CFT_KEY,JSON.stringify(tabs));
-  if(formation===('cf_'+(i+1)) || formation.startsWith('cf_')) {
-    formation=Object.keys(BUILTIN_FORMS)[0]||'4-2-2-2';
+  if(formation===deletedId){
+    formation=Object.keys(BUILTIN_FORMS)[0]||'4-3-3';
     formationName=''; customRows={}; lineup={}; slotSubs={}; posOffsets={};
     renderAll();
   } else {
     renderFTabs();
   }
-  showToast('Tab "'+name+'" gelöscht','var(--red2)');
+  showToast('Formation "'+name+'" gelöscht','var(--red2)');
 }
 function setFormation(f){
   // Save current assigned players by their player-IDs (not slot keys)
