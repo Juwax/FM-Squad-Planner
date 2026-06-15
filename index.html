@@ -249,7 +249,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
     </div>
   </div>
   <div class="vs"></div>
-  <div style="display:flex;align-items:center;gap:5px;flex-shrink:0"><span style="font-family:var(--ff);font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)" id="planLbl">VEREIN</span><div class="team-lbl" id="teamLbl" onclick="promptTeam()">FC Fulham</div></div>
+  <div style="display:flex;align-items:center;gap:5px;flex-shrink:0"><span style="font-family:var(--ff);font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)" id="planLbl">VEREIN</span><div class="team-lbl" id="teamLbl" onclick="promptTeam()" style="opacity:.45;font-style:italic">Dein Club / Save</div></div>
 
   <div class="ml" style="display:flex;gap:6px;align-items:center">
     <div style="display:flex;gap:2px;background:var(--card2);border:1px solid var(--brd2);border-radius:var(--r);overflow:hidden;flex-shrink:0">
@@ -1183,32 +1183,7 @@ function allSlots(){
 // BVB DATA
 // ══════════════════════════════════
 function initBVB(){
-  players=[
-    {id:uid(),name:'Brendon Franklyn',number:null,position:'TW',altPos:null,age:23,hier:'key',club:'FC Fulham',fmId:null,nation:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-    {id:uid(),name:'Matthew Young',number:null,position:'TW',altPos:null,age:28,hier:'fringe',club:'FC Fulham',fmId:null,nation:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-    {id:uid(),name:'Louis Trapu',number:null,position:'TW',altPos:null,age:24,hier:'fringe',club:'FC Fulham',fmId:null,nation:'🇫🇷'},
-    {id:uid(),name:'Owen Huxtable',number:null,position:'IV',altPos:'RAV',age:25,hier:'rotation',club:'FC Fulham',fmId:null,nation:'🏴󠁧󠁢󠁷󠁬󠁳󠁿'},
-    {id:uid(),name:'Luca Marianucci',number:null,position:'IV',altPos:'DM',age:30,hier:'influencer',club:'FC Fulham',fmId:null,nation:'🇮🇹'},
-    {id:uid(),name:'Sepp van den Berg',number:null,position:'IV',altPos:'RFV',age:33,hier:'influencer',club:'FC Fulham',fmId:'37074900',nation:'🇳🇱'},
-    {id:uid(),name:'David Odogu',number:null,position:'IV',altPos:'DM',age:28,hier:'influencer',club:'FC Fulham',fmId:null,nation:'🇩🇪'},
-    {id:uid(),name:'Arno Vermeulen',number:null,position:'ZM',altPos:'IV',age:22,hier:'first',club:'FC Fulham',fmId:null,nation:'🇧🇪'},
-    {id:uid(),name:'Reece McKenzie',number:null,position:'DM',altPos:'IV',age:25,hier:'key',club:'FC Fulham',fmId:null,nation:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-    {id:uid(),name:'Jonathan De Windt',number:null,position:'LAV',altPos:'DM',age:22,hier:'key',club:'FC Fulham',fmId:null,nation:'🇧🇪'},
-    {id:uid(),name:'Brooke Norton-Cuffy',number:null,position:'RAV',altPos:'RFV',age:31,hier:'first',club:'FC Fulham',fmId:'2000047226',nation:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-    {id:uid(),name:'Mauro Pellegrino',number:null,position:'RAV',altPos:'LFV',age:23,hier:'influencer',club:'FC Fulham',fmId:null,nation:'🇧🇷'},
-    {id:uid(),name:'Alimardon Abdullaev',number:null,position:'DM',altPos:'ZM',age:24,hier:'rotation',club:'FC Fulham',fmId:null,nation:'🇰🇬'},
-    {id:uid(),name:'Gareth Martin',number:null,position:'DM',altPos:'OM',age:23,hier:'rotation',club:'FC Fulham',fmId:null,nation:'🏴󠁧󠁢󠁷󠁬󠁳󠁿'},
-    {id:uid(),name:'Cristian Orozco',number:null,position:'DM',altPos:'ZM',age:26,hier:'fringe',club:'FC Fulham',fmId:null,nation:'🇨🇴'},
-    {id:uid(),name:'Ezechiel Banzuzi',number:null,position:'DM',altPos:'ZM',age:29,hier:'influencer',club:'FC Fulham',fmId:null,nation:'🇳🇱'},
-    {id:uid(),name:'João Simões',number:null,position:'ZM',altPos:'OM',age:28,hier:'influencer',club:'FC Fulham',fmId:'2000268884',nation:'🇵🇹'},
-    {id:uid(),name:'Danny Shaughnessy',number:null,position:'LA',altPos:'OM',age:24,hier:'fringe',club:'FC Fulham',fmId:null,nation:'🇮🇪'},
-    {id:uid(),name:'Silver Alex',number:null,position:'OM',altPos:'ST',age:23,hier:'influencer',club:'FC Fulham',fmId:null,nation:'🇪🇪'},
-    {id:uid(),name:'Alessio Cavalli',number:null,position:'OM',altPos:'ST',age:24,hier:'rotation',club:'FC Fulham',fmId:null,nation:'🇮🇹'},
-    {id:uid(),name:'Francesco Pio Esposito',number:null,position:'ST',altPos:null,age:29,hier:'first',club:'FC Fulham',fmId:'2000146883',nation:'🇮🇹'},
-    {id:uid(),name:'Gaizka Uranga',number:null,position:'ST',altPos:null,age:24,hier:'rotation',club:'FC Fulham',fmId:null,nation:'🇪🇸'},
-    {id:uid(),name:'Claude',number:null,position:'ST',altPos:null,age:24,hier:'influencer',club:'FC Fulham',fmId:null,nation:'🇧🇪'},
-    {id:uid(),name:'Mohamed Kader Meitei',number:null,position:'ST',altPos:null,age:27,hier:'first',club:'FC Fulham',fmId:null,nation:'🇫🇷'},
-  ];
+  players=[];
   lineup={};
   slotSubs={};
   posOffsets={};
@@ -3147,7 +3122,7 @@ function removeFromLineup(id){
   renderAll();
 }
 function resetBVB(){ if(!confirm('BVB FM26.2 laden?'))return; formation='3-4-2-1'; initBVB(); renderAll(); }
-function promptTeam(){ const v=prompt('Vereinsname:',document.getElementById('teamLbl').textContent); if(v)document.getElementById('teamLbl').textContent=v; }
+function promptTeam(){ const lbl=document.getElementById('teamLbl'); const cur=lbl.style.fontStyle==='italic'?'':lbl.textContent; const v=prompt('Vereinsname / Savename:',cur); if(v&&v.trim()){lbl.textContent=v.trim();lbl.style.opacity='';lbl.style.fontStyle='';} }
 
 // RESIZE HANDLE
 (function(){
