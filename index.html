@@ -111,7 +111,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .slot.sub .sini{font-size:10px}
 .snum-in{position:absolute;bottom:0;left:0;right:0;height:var(--snum-h);background:rgba(0,0,0,.72);font-family:var(--ff);font-size:var(--snum-sz);font-weight:800;text-align:center;line-height:var(--snum-h);color:rgba(255,255,255,.95);z-index:3;pointer-events:none}
 .slot.sub .snum-in{height:12px;font-size:8px;line-height:12px}
-.snwrap{position:relative;display:inline-flex;flex-direction:column;align-items:center;margin-top:2px}
+.snwrap{position:relative;display:inline-flex;flex-direction:row;align-items:center;gap:3px;margin-top:2px;max-width:80px}
 .snlbl{font-family:var(--ff);font-size:var(--snlbl-sz);font-weight:700;color:rgba(230,230,255,.95);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68px;line-height:1.4;pointer-events:none}
 .sntip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:rgba(4,4,18,.97);border:1px solid var(--brd2);border-radius:4px;font-family:var(--ff);font-size:11px;font-weight:700;color:var(--text);padding:3px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:300}
 .snwrap:hover .sntip{opacity:1}
@@ -1537,6 +1537,7 @@ function renderPitch(){
         const flag=(p.nation&&showFlags())?flagHtml(p.nation,'11px',true):'';
         snl.innerHTML=flag+`<span>${p.name.split(' ').pop()}</span>`;
         const tip=document.createElement('div'); tip.className='sntip'; tip.textContent=p.name+(p.nation?' '+p.nation:'')+'  ·  Klick: auswählen  ·  2× Klick: Slot auswählen'; snw.appendChild(tip);
+        snw.appendChild(snl);
         // ✕ remove badge — visible on hover
         const rem=document.createElement('div');
         rem.style.cssText='font-size:10px;color:rgba(231,76,60,.7);cursor:pointer;line-height:1;padding:1px 3px;border-radius:3px;transition:all .12s;font-family:var(--ff);font-weight:700;margin-top:1px';
@@ -1554,8 +1555,9 @@ function renderPitch(){
         rem.onmouseover=()=>rem.style.color='var(--red2)';
         rem.onmouseout=()=>rem.style.color='rgba(231,76,60,.7)';
         snw.appendChild(rem);
+      } else {
+        snw.appendChild(snl);
       }
-      snw.appendChild(snl);
       grp.appendChild(snw);
     }
 
@@ -2462,10 +2464,40 @@ async function runImportAI(b64, mimeType){
   const headers={'Content-Type':'application/json'};
   if(apiKey) headers['x-api-key']=apiKey;
 
-  const prompt=`Analysiere diesen FM-Kader-Screenshot. Extrahiere ALLE sichtbaren Spieler.
-Antworte NUR mit einem JSON-Array, kein Markdown, keine Erklärung:
-[{"name":"Vollständiger Name","position":"TW|IV|LAV|RAV|DM|ZM|OM|LA|RA|ST|HS","age":N,"nation":"Flaggen-Emoji","number":N_oder_null,"club":"Vereinsname falls sichtbar","hier":"key|influencer|first|rotation|fringe|youth|new"}]
-Wichtig: position muss eine dieser Abkürzungen sein. nation als Emoji-Flagge (z.B. 🇩🇪). Falls nicht erkennbar: null. Gib alle Spieler zurück die du siehst.`;
+  const prompt=`Du analysierst einen Football Manager (FM) Kader-Screenshot. Extrahiere ALLE sichtbaren Spieler als JSON.
+
+POSITIONSMAPPING — FM-Abkürzungen exakt mappen:
+TW  = TW  (Torwart / GK)
+IV  = IV  (Innenverteidiger — V(Z), V(RZ), V(RLZ), CB, DC)
+LAV = LAV (Linker Außenverteidiger — V(L), LB, DL)
+RAV = RAV (Rechter Außenverteidiger — V(R), RB, DR)
+DM  = DM  (Defensives Mittelfeld — DM, M(D))
+ZM  = ZM  (Zentrales Mittelfeld — M(Z), CM, MC)
+OM  = OM  (Offensives Mittelfeld — OM(Z), M/OM(Z), M(O), AM, CAM)
+LA  = LA  (Linkes Außen — M(L), AM(L), ML, M/OM(L))
+RA  = RA  (Rechtes Außen — M(R), AM(R), MR, M/OM(R))
+ST  = ST  (Stürmer — ST(Z), A(Z), CF)
+HS  = HS  (Hängende Spitze — A(S), SS)
+
+POSITIONSREGEL: Spieler haben oft mehrere Pos. z.B. "V (RLZ)", "DM, M (Z)", "M/OM (Z)".
+Nimm IMMER die erste genannte als Hauptposition. Beispiele:
+"V (RLZ)"→IV  "V (L)"→LAV  "V (R)"→RAV  "DM, M (Z)"→DM  "M (Z)"→ZM
+"M (L)"→LA  "M (R)"→RA  "OM (Z)"→OM  "M/OM (Z)"→OM  "ST (Z)"→ST
+
+NATION: Lies Spalte "NATION" (3-Buchstaben-Kürzel). Konvertiere zu Flaggen-Emoji:
+BEN→🇧🇯 GHA→🇬🇭 NGA→🇳🇬 DEU→🇩🇪 GER→🇩🇪 FRA→🇫🇷 ESP→🇪🇸 BRA→🇧🇷 ARG→🇦🇷
+ENG→🏴󠁧󠁢󠁥󠁮󠁧󠁿 SCO→🏴󠁧󠁢󠁳󠁣󠁴󠁿 WAL→🏴󠁧󠁢󠁷󠁬󠁳󠁿 ITA→🇮🇹 NED→🇳🇱 POR→🇵🇹 BEL→🇧🇪 CPV→🇨🇻
+UAE→🇦🇪 SWE→🇸🇪 CIV→🇨🇮 SEN→🇸🇳 CMR→🇨🇲 MAR→🇲🇦 MLI→🇲🇱 GIN→🇬🇳
+TUN→🇹🇳 BFA→🇧🇫 TOG→🇹🇬 AUT→🇦🇹 POL→🇵🇱 TUR→🇹🇷 CRO→🇭🇷 SRB→🇷🇸
+DEN→🇩🇰 NOR→🇳🇴 SUI→🇨🇭 USA→🇺🇸 MEX→🇲🇽 COL→🇨🇴 URU→🇺🇾 JPN→🇯🇵
+KOR→🇰🇷 AUS→🇦🇺 RSA→🇿🇦 EGY→🇪🇬 ALG→🇩🇿 KGZ→🇰🇬
+
+NUMMER: Spalte ganz links ("NR." / "#"). Zahl 1-99, sorgfältig ablesen.
+ALTER: Spalte "ALTER" / "ALT" / "AGE". Zahl 15-45.
+NAME: Vollständiger Name, Sonderzeichen exakt übernehmen (é ñ ü ä ö ï ã usw.)
+
+Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
+[{"name":"Vollständiger Name","position":"TW|IV|LAV|RAV|DM|ZM|OM|LA|RA|ST|HS","age":N,"nation":"🏳️","number":N_oder_null}]`
 
   try{
     const PROXY=window.CLAUDE_PROXY||'https://api.anthropic.com/v1/messages';
