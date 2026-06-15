@@ -2407,12 +2407,28 @@ function handleImportFile(file){
   if(!file||!file.type.startsWith('image/')) return;
   const reader=new FileReader();
   reader.onload=e=>{
-    const b64=e.target.result.split(',')[1];
     const img=document.getElementById('importPreviewImg');
     img.src=e.target.result;
     document.getElementById('importPreview').style.display='block';
     document.getElementById('importDropzone').style.display='none';
-    runImportAI(b64, file.type||'image/png');
+    // Compress image: scale down 2x Retina screenshots to save 50-75% tokens
+    const srcImg=new Image();
+    srcImg.onload=()=>{
+      const MAX=1280; // max width/height in px
+      let w=srcImg.width, h=srcImg.height;
+      if(w>MAX||h>MAX){
+        const ratio=Math.min(MAX/w,MAX/h);
+        w=Math.round(w*ratio);
+        h=Math.round(h*ratio);
+      }
+      const canvas=document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(srcImg,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.85);
+      const b64=compressed.split(',')[1];
+      runImportAI(b64,'image/jpeg');
+    };
+    srcImg.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -2465,7 +2481,7 @@ Wichtig: position muss eine dieser Abkürzungen sein. nation als Emoji-Flagge (z
       method:'POST',
       headers:fetchHeaders,
       body:JSON.stringify({
-        model:'claude-sonnet-4-6',
+        model:'claude-haiku-4-5',
         max_tokens:2000,
         messages:[{
           role:'user',
