@@ -562,6 +562,9 @@ const LANGS={
     colPos:'POS',colNum:'#',colName:'Name',colClub:'Verein',colAge:'Alt',colHier:'Hierarch.',
     abL:'✓ AUFSTELLUNG',abT:'★ TALENTE',abB:'◎ KADER',
     noPlayers:'Keine Spieler gefunden',
+    hintAddPlayer:'Spieler hinzufügen',hintAddPlayerDesc:'oben auf <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">+ Spieler</span> klicken',
+    hintScreenshot:'Screenshot importieren',hintScreenshotDesc:'FM-Kaderübersicht screenshotten & per <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">Import</span> hochladen',
+    hintFMExport:'FM Export laden',hintFMExportDesc:'Kader aus FM als HTML/CSV exportieren & per <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">FM Export</span> laden',
     saveModalTitle:'💾 Kaderplan laden',saveNamePlaceholder:'z.B. BVB Saison 26/27 — Plan A',
     saveBtn:'Speichern',loadBtn:'Laden',closeBtn:'Schließen',cancelBtn:'Abbrechen',
     noSaves:'Noch keine gespeicherten Pläne.',
@@ -670,6 +673,9 @@ const LANGS={
     colPos:'POS',colNum:'#',colName:'Name',colClub:'Club',colAge:'Age',colHier:'Hierarchy',
     abL:'✓ LINEUP',abT:'★ TALENTS',abB:'◎ SQUAD',
     noPlayers:'No players found',
+    hintAddPlayer:'Add a player',hintAddPlayerDesc:'click <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">+ Player</span> at the top',
+    hintScreenshot:'Import screenshot',hintScreenshotDesc:'screenshot your FM squad view & upload via <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">Import</span>',
+    hintFMExport:'Load FM export',hintFMExportDesc:'export your squad from FM as HTML/CSV & load via <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">FM Export</span>',
     saveModalTitle:'💾 Load squad plan',saveNamePlaceholder:'e.g. BVB Season 26/27 — Plan A',
     saveBtn:'Save',loadBtn:'Load',closeBtn:'Close',cancelBtn:'Cancel',
     noSaves:'No saved plans yet.',
@@ -775,6 +781,9 @@ const LANGS={
     colPos:'POS',colNum:'#',colName:'Nombre',colClub:'Club',colAge:'Edad',colHier:'Jerarquía',
     abL:'✓ ALINEACIÓN',abT:'★ TALENTOS',abB:'◎ PLANTILLA',
     noPlayers:'No se encontraron jugadores',
+    hintAddPlayer:'Añadir jugador',hintAddPlayerDesc:'haz clic en <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">+ Jugador</span> arriba',
+    hintScreenshot:'Importar captura',hintScreenshotDesc:'haz una captura de tu plantilla en FM y súbela con <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">Import</span>',
+    hintFMExport:'Cargar export FM',hintFMExportDesc:'exporta tu plantilla como HTML/CSV y cárgala con <span style="background:var(--card);padding:1px 5px;border-radius:3px;font-family:var(--ff)">FM Export</span>',
     saveModalTitle:'💾 Cargar plan',saveNamePlaceholder:'Ej. BVB Temporada 26/27 — Plan A',
     saveBtn:'Guardar',loadBtn:'Cargar',closeBtn:'Cerrar',cancelBtn:'Cancelar',
     noSaves:'Todavía no hay planes guardados.',
@@ -1832,7 +1841,15 @@ function renderList(){
     }
   });
   const el=document.getElementById('plist');
-  if(!list.length){ el.innerHTML=`<div style="text-align:center;padding:36px;color:var(--text3)">${t('noPlayers')}</div>`; return; }
+  if(!list.length){ el.innerHTML=`<div style="text-align:center;padding:36px 24px;color:var(--text3);line-height:1.7">
+    <div style="font-size:28px;margin-bottom:10px">📋</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px">${t('noPlayers')}</div>
+    <div style="font-size:11px;color:var(--text3);max-width:260px;margin:0 auto;text-align:left">
+      <div style="margin-bottom:6px">➕ <b>${t('hintAddPlayer')}</b> — ${t('hintAddPlayerDesc')}</div>
+      <div style="margin-bottom:6px">📷 <b>${t('hintScreenshot')}</b> — ${t('hintScreenshotDesc')}</div>
+      <div>📊 <b>${t('hintFMExport')}</b> — ${t('hintFMExportDesc')}</div>
+    </div>
+  </div>`; return; }
 
   // Find selected slot category for row pulsing
   const selSlot=selectedSlotKey?allSlots().find(s=>s.k===selectedSlotKey):null;
