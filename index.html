@@ -76,18 +76,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .lang-btn.on{background:var(--adim)!important;border-bottom:2px solid var(--acc2)!important;border-radius:0}
 .cs-btn{width:44px;padding:5px 0;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;border:none;transition:all .15s}
 /* PITCH SCROLL */
-.pscroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:6px 4px 0}
+.pscroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:6px 4px 0;min-height:0}
 .pitch-outer{width:100%;flex-shrink:0}
-.pitch{width:100%;aspect-ratio:68/132;background:#2a5a2a;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
+.pitch{width:100%;aspect-ratio:68/104;background:#2a5a2a;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
 .pitch::before{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0,transparent calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7))}
-.pm{position:absolute;background:transparent;border:2px solid rgba(255,255,255,.5);pointer-events:none;box-shadow:0 0 2px rgba(0,0,0,.4)}
-.pm-hl{top:50%;left:4%;width:92%;height:0;border:none;border-top:2px solid rgba(255,255,255,.5);box-shadow:0 1px 2px rgba(0,0,0,.35)}
+.pm{position:absolute;background:transparent;border:2.5px solid rgba(255,255,255,.75);pointer-events:none;box-shadow:0 0 3px rgba(0,0,0,.5)}
+.pm-hl{top:50%;left:3%;width:94%;height:0;border:none;border-top:2.5px solid rgba(255,255,255,.75);box-shadow:0 0 3px rgba(0,0,0,.5)}
 .pm-cc{top:50%;left:50%;transform:translate(-50%,-50%);width:18%;aspect-ratio:1;border-radius:50%}
 .pm-pt{top:0;left:20%;width:60%;height:14%;border-top:none}
 .pm-pb{bottom:0;left:20%;width:60%;height:14%;border-bottom:none}
 .pm-gt{top:0;left:35%;width:30%;height:5%;border-top:none}
 .pm-gb{bottom:0;left:35%;width:30%;height:5%;border-bottom:none}
-.pm-spot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);pointer-events:none}
+.pm-spot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.85);pointer-events:none;box-shadow:0 0 3px rgba(0,0,0,.5)}
 /* Global styled hover tooltip, anchored to <body> so it never gets clipped */
 #hoverTip{position:fixed;background:rgba(4,4,18,.98);border:1px solid var(--brd2);border-radius:6px;color:var(--text);font-family:var(--fb);font-size:11px;font-weight:600;padding:5px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:99999;box-shadow:0 4px 14px rgba(0,0,0,.55);max-width:260px}
 #hoverTip.show{opacity:1}
@@ -352,7 +352,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
   </div>
   <div class="resize-handle" id="rh"></div>
   <div class="rpanel">
-    <div class="pph" id="pph"></div>
+    <div style="display:flex;align-items:center;background:var(--panel2);border-bottom:1px solid var(--brd)">
+      <div class="pph" id="pph" style="flex:1;border-bottom:none"></div>
+      <button id="fitColsBtn2" onclick="autoFitColumns()" title="Spaltenbreiten optimal an Inhalt anpassen" style="flex-shrink:0;background:var(--card2);border:1px solid var(--brd2);border-radius:var(--r);color:var(--text2);cursor:pointer;font-family:var(--ff);font-size:11px;font-weight:700;padding:5px 10px;white-space:nowrap;margin:0 8px">↔ Auto</button>
+    </div>
     <div class="colwrap"><div class="colh" id="colh"></div></div>
     <div class="plist" id="plist" ondragover="event.preventDefault()" ondrop="dropUnassign()" onclick="if(event.target===this){selectedPid=null;selectedSlotKey=null;renderPitch();renderList();}"></div>
     <div class="abar">
@@ -676,6 +679,7 @@ const LANGS={
     ageSuffix:'J',
     savedToast:'gespeichert',loadedToast:'geladen',loadConfirmSuffix:'laden?',
     clubPlaceholder:'Dein Club / Save',
+    fitColsBtn:'↔ Spalten',fitColsTip:'Spaltenbreiten optimal an Inhalt anpassen',
     clearFieldLbl:'✕ leeren',
     // Tooltips (topbar)
     tipFontSmaller:'Schrift kleiner',
@@ -820,6 +824,7 @@ const LANGS={
     ageSuffix:'y',
     savedToast:'saved',loadedToast:'loaded',loadConfirmSuffix:'load?',
     clubPlaceholder:'Your club / save',
+    fitColsBtn:'↔ Columns',fitColsTip:'Fit column widths to content',
     clearFieldLbl:'✕ clear',
     tipFontSmaller:'Smaller font',
     tipFontLarger:'Larger font',
@@ -959,6 +964,7 @@ const LANGS={
     ageSuffix:'a',
     savedToast:'guardado',loadedToast:'cargado',loadConfirmSuffix:'¿cargar?',
     clubPlaceholder:'Tu club / guardar',
+    fitColsBtn:'↔ Columnas',fitColsTip:'Ajustar ancho de columnas al contenido',
     clearFieldLbl:'✕ vaciar',
     tipFontSmaller:'Fuente más pequeña',
     tipFontLarger:'Fuente más grande',
@@ -1100,6 +1106,7 @@ function setLang(l){
   _tip('[onclick="adjFont(1)"]','tipFontLarger');
   _tip('#undoBtn','tipUndo');
   _tip('[onclick="exportPNG()"]','tipPNG');
+  const fitBtn2=document.getElementById('fitColsBtn2'); if(fitBtn2){ fitBtn2.title=t('fitColsTip'); }
   _tip('[onclick="openImport()"]','tipImport');
   _tip('[onclick="openCSVImport()"]','tipFMExport');
   _tip('[onclick="quickSave()"]','tipSave');
@@ -1913,6 +1920,44 @@ function endColResize(){
   _resizeCol=null;
   document.removeEventListener('mousemove',doColResize);
   document.removeEventListener('mouseup',endColResize);
+}
+
+// Measure widest content per resizable column and set optimal widths.
+function autoFitColumns(){
+  // Canvas for text measurement using the list font
+  const cvs=autoFitColumns._c||(autoFitColumns._c=document.createElement('canvas'));
+  const ctx=cvs.getContext('2d');
+  const fs=getComputedStyle(document.documentElement).getPropertyValue('--fs').trim()||'13px';
+  const fb=getComputedStyle(document.documentElement).getPropertyValue('--fb').trim()||'sans-serif';
+  const measure=(txt,weight='500',size=fs)=>{ ctx.font=`${weight} ${size} ${fb}`; return ctx.measureText(txt||'').width; };
+
+  const PAD=18; // left+right cell padding + a little slack
+  const MIN={pos:56,num:34,club:70,age:32,hier:60};
+  const MAX={pos:120,num:70,club:280,age:60,hier:200};
+
+  // seed with header label widths
+  const w={};
+  COLS.forEach(col=>{ if(COL_W[col.id]>0){ w[col.id]=measure(col.lbl,'700',fs)+22; } });
+
+  players.forEach(p=>{
+    if('pos' in w){
+      const posTxt=p.position+(p.altPos?' '+p.altPos:'');
+      w.pos=Math.max(w.pos, measure(posTxt,'700','11px')+10);
+    }
+    if('num' in w) w.num=Math.max(w.num, measure(p.number!=null?String(p.number):'','700','15px'));
+    if('club' in w) w.club=Math.max(w.club, measure(p.club||'','500','11px'));
+    if('age' in w) w.age=Math.max(w.age, measure(p.age!=null?String(p.age):'','500','12px'));
+    if('hier' in w){ const h=HIER[p.hier]||HIER.rotation; w.hier=Math.max(w.hier, measure(h.l||'','700','11px')+16); }
+  });
+
+  Object.keys(w).forEach(id=>{
+    let val=Math.round(w[id]+PAD);
+    if(MIN[id]) val=Math.max(MIN[id],val);
+    if(MAX[id]) val=Math.min(MAX[id],val);
+    COL_W[id]=val;
+    document.documentElement.style.setProperty('--cw-'+id, val+'px');
+  });
+  renderColH();
 }
 function renderColH(){
   const ch=document.getElementById('colh'); ch.innerHTML='';
@@ -3461,6 +3506,15 @@ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.l
 // RENDER ALL
 function renderAll(){ renderFTabs(); renderPPills(); renderColH(); renderList(); loadNote(); requestAnimationFrame(()=>requestAnimationFrame(renderPitch)); document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on',b.dataset.lang===lang)); }
 window.addEventListener('resize',()=>requestAnimationFrame(renderPitch));
+// Re-render pitch whenever its container changes size (panel resize, sidebar drag)
+(function(){
+  const sc=document.querySelector('.pscroll');
+  if(sc && 'ResizeObserver' in window){
+    let raf;
+    const ro=new ResizeObserver(()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(renderPitch); });
+    ro.observe(sc);
+  }
+})();
 document.addEventListener('dragover',moveGhost);
 
 // Clean up broken formation tabs (id starts with cf_ but name is also cf_...)
