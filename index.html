@@ -2239,10 +2239,14 @@ function parseHTML(text){
   const rows=[...div.querySelectorAll('table tr')];
   if(rows.length<2) return [];
 
-  // FM24 exports headers as <th>, data as <td>
-  const headerRow=rows.find(r=>r.querySelector('th'));
-  if(!headerRow) return [];
-  const headers=[...headerRow.querySelectorAll('th')].map(c=>c.textContent.trim());
+  // Header row: prefer a <th> row, else fall back to the first row (some FM
+  // exports emit headers as <td> in the first <tr>).
+  let headerRow=rows.find(r=>r.querySelector('th'));
+  let headerIsTh=!!headerRow;
+  if(!headerRow) headerRow=rows[0];
+  const headerCellSel=headerIsTh?'th':'td';
+  const headers=[...headerRow.querySelectorAll(headerCellSel)].map(c=>c.textContent.replace(/\s+/g,' ').trim());
+  try{ console.log('[FM Import] Erkannte Spalten:', headers); }catch(e){}
 
   function findCol(...keys){
     for(const k of keys){
@@ -2251,35 +2255,61 @@ function parseHTML(text){
     }
     return -1;
   }
+  // exact (whole-header) match, tried before fuzzy includes()
+  function findColExact(...keys){
+    for(const k of keys){
+      const i=headers.findIndex(h=>h.toLowerCase()===k.toLowerCase());
+      if(i>=0) return i;
+    }
+    return -1;
+  }
 
-  const iName = findCol('Name','Spieler','Player');
-  const iAge  = findCol('Alter','Age','Geboren');
-  const iPos  = findCol('Position','Pos');
-  const iNat  = findCol('Nation','Nat');
+  const iName = findCol('Spieler','Name','Player');
+  const iAge  = findColExact('Alter','Age')>=0?findColExact('Alter','Age'):findCol('Alter','Age','Geboren');
+  // NOTE: file may contain both "Ausgewählte Position" (VL/E4/TW…) and the real
+  // "Position" column (V (RL)…). Prefer the exact "Position" header.
+  let iPos = findColExact('Position','Positionen','Pos');
+  if(iPos<0) iPos = findCol('Position','Pos');
+  const iNat  = findColExact('Nation')>=0?findColExact('Nation'):findCol('Nation','Nat');
   const iClub = findCol('Verein','Club','Team');
   const iHier = findCol('Einsatzzeiten','Status','Hierarchie','Squad Status');
+  // "Ausgewählte Position" holds the concrete used position (VL, VR, VZL…),
+  // used as tiebreaker when the real Position column is ambiguous (e.g. "V (RL)").
+  const iSelPos = findCol('Ausgewählte Position','Ausgewählte Pos','Selected Position');
+  try{ console.log('[FM Import] Spaltenindizes → Name:'+iName+' Pos:'+iPos+' Alter:'+iAge+' Nat:'+iNat); }catch(e){}
   if(iName<0) return [];
+
+  // data rows = all rows except the header row itself
+  const dataRows=rows.filter(r=>r!==headerRow);
 
   // FM24 position map. Takes the FULL cell (may contain several positions
   // separated by commas, and newlines). Returns {main, alt}.
   // "V (RL)" → main IV-ish by side; "OM (R), ST (Z)" → main OMR, alt ST
-  function mapOneFM24Pos(r){
+  // sideHint: 'L' or 'R' derived from the "Ausgewählte Position" column, used
+  // to disambiguate two-sided defenders like "V (RL)" (no Z).
+  function mapOneFM24Pos(r, sideHint){
     if(!r) return null;
     r=r.replace(/\s+/g,' ').trim();
     // Pattern: TYPE (SIDE) e.g. "V (Z)", "M (RL)", "FV (R)", "DM", "TW", "ST (Z)", "M/OM (Z)"
     const m=r.match(/^([A-Za-z\/]+)\s*(?:\(([RLZCrlzc ]*)\))?/);
     if(!m) return null;
     const type=m[1].toUpperCase(), side=(m[2]||'').toUpperCase().replace(/\s/g,'');
+    const h=(sideHint||'').toUpperCase();
     if(type==='TW'||type==='GK') return 'TW';
     if(type==='V'||type==='V/FV'){
       if(side.includes('Z')||side==='C'||side==='') return 'IV';
       if(side.includes('L')&&!side.includes('R')) return 'LAV';
       if(side.includes('R')&&!side.includes('L')) return 'RAV';
-      return 'IV';
+      // both L and R (no Z) → use hint from Ausgewählte Position
+      if(h==='L') return 'LAV';
+      if(h==='R') return 'RAV';
+      return 'RAV';
     }
     if(type==='FV'){
       if(side.includes('L')&&!side.includes('R')) return 'LFV';
       if(side.includes('R')&&!side.includes('L')) return 'RFV';
+      if(h==='L') return 'LFV';
+      if(h==='R') return 'RFV';
       return 'RFV';
     }
     if(type==='DM'||type==='DM/M') return 'DM';
@@ -2300,15 +2330,25 @@ function parseHTML(text){
     return null;
   }
 
-  function mapFM24Positions(raw){
+  function mapFM24Positions(raw, sideHint){
     if(!raw) return {main:'ST',alt:null};
     // split into position tokens by comma, but keep "V (RL)" intact.
     // FM cell may look like: "V (RL)" or "OM (R),\nST (Z)" or "V (Z), DM"
     const parts=raw.split(',').map(p=>p.replace(/\s+/g,' ').trim()).filter(Boolean);
-    const mapped=parts.map(mapOneFM24Pos).filter(Boolean);
+    const mapped=parts.map(p=>mapOneFM24Pos(p, sideHint)).filter(Boolean);
     const main=mapped[0]||'ST';
     const alt=mapped.find(p=>p!==main)||null;
     return {main,alt};
+  }
+
+  // Derive L/R hint from the "Ausgewählte Position" abbreviation (VL, VR, VZL, VZR…)
+  function sideHintFromSel(sel){
+    if(!sel) return '';
+    const s=sel.toUpperCase();
+    // strip trailing Z (central marker) so "VZL" → left, "VZR" → right
+    if(/L$/.test(s)) return 'L';
+    if(/R$/.test(s)) return 'R';
+    return '';
   }
 
   // FIFA 3-letter country code → flag emoji
@@ -2343,7 +2383,7 @@ function parseHTML(text){
   };
 
   const out=[];
-  for(const row of rows){
+  for(const row of dataRows){
     const cells=[...row.querySelectorAll('td')];
     if(!cells.length) continue;
     const g=i=>i>=0&&cells[i]?cells[i].textContent.trim():'';
@@ -2365,7 +2405,8 @@ function parseHTML(text){
     }
     const rawNat=g(iNat);
     const rawHier=g(iHier).toLowerCase();
-    const pos=mapFM24Positions(rawPos);
+    const sideHint=sideHintFromSel(g(iSelPos));
+    const pos=mapFM24Positions(rawPos, sideHint);
     out.push({
       name,
       position: pos.main,
