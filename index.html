@@ -169,6 +169,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .snlbl{font-family:var(--ff);font-size:var(--snlbl-sz);font-weight:700;color:rgba(230,230,255,.95);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.4;pointer-events:none}
 .snlbl-main{font-size:calc(var(--snlbl-sz) * 1.15);font-weight:800;color:#fff}
 .snlbl-sub{font-size:calc(var(--snlbl-sz) * 0.88);font-weight:600;color:rgba(210,210,235,.82)}
+/* Compact substitute rows (name list under the starter) */
+.sub-row{display:flex;align-items:center;gap:5px;margin-top:3px;padding:2px 7px 2px 5px;border-radius:11px;background:rgba(8,10,22,.82);border:1px solid rgba(255,255,255,.07);max-width:150px;cursor:pointer;transition:background .12s,border-color .12s;font-family:var(--ff)}
+.sub-row.filled:hover{background:rgba(20,24,44,.92);border-color:var(--rc)}
+.sub-row.drag-over{border-color:var(--rc);background:rgba(20,24,44,.95)}
+.sub-row.drag-src{opacity:.4}
+.sub-row.empty{opacity:.5;border-style:dashed;justify-content:center}
+.sub-row .sub-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 4px var(--rc)}
+.sub-row .sub-dot.empty{background:rgba(255,255,255,.25);box-shadow:none}
+.sub-row .sub-name{font-size:calc(var(--snlbl-sz) * 0.92);font-weight:600;color:rgba(225,225,245,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
+.sub-row .sub-x{margin-left:auto;font-size:9px;color:rgba(231,76,60,.55);font-weight:700;padding:0 1px;opacity:0;transition:opacity .12s}
+.sub-row:hover .sub-x{opacity:1}
+.sub-row .sub-x:hover{color:var(--red2)}
+.pgrp.collapsed .sub-row{display:none!important}
 .sntip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:rgba(4,4,18,.97);border:1px solid var(--brd2);border-radius:4px;font-family:var(--ff);font-size:11px;font-weight:700;color:var(--text);padding:3px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:300}
 .snwrap:hover .sntip{opacity:1}
 .slot-conn{width:1.5px;height:5px;background:rgba(255,255,255,.2);pointer-events:none;align-self:center}
@@ -1663,7 +1676,8 @@ function renderPitch(){
   const _sub=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--slot-sub'))||36;
   const _snl=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--snlbl-sz'))||10;
   const PRIM=_s, SUB=_sub, CONN=5, LBL=17, NM=_snl*1.4+2, PLUS=24;
-  function grpH(n){ return LBL+3+PRIM+NM+(n-1)*(CONN+SUB+NM)+CONN+PLUS; }
+  const SUBROW=Math.round(_snl*1.4+8); // compact sub-row height incl. gap
+  function grpH(n){ return LBL+3+PRIM+NM+(n-1)*SUBROW+CONN+PLUS; }
 
   // Collect all slots (builtin rows + custom)
   const slots=[];
@@ -1764,7 +1778,51 @@ function renderPitch(){
       const pid=pids[i]||null;
       const p=pid?players.find(x=>x.id===pid):null;
       const c=p?avc(p.id):null;
-      if(i>0){ const conn=document.createElement('div'); conn.className='slot-conn'; grp.appendChild(conn); }
+
+      // ── Sub-players (i>0): compact name row instead of a big circle ──
+      if(i>0){
+        const row=document.createElement('div');
+        row.className='sub-row'+(p?' filled':'');
+        row.style.setProperty('--rc', catC);
+        // drop target on the row
+        row.ondragover=e=>{ e.preventDefault(); row.classList.add('drag-over'); grp.classList.add('drag-active'); };
+        row.ondragleave=()=>{ row.classList.remove('drag-over'); grp.classList.remove('drag-active'); };
+        row.ondrop=e=>{ e.preventDefault(); row.classList.remove('drag-over'); grp.classList.remove('drag-active'); doAssign(slot.k,i,e.dataTransfer.getData('srcSlot'),parseInt(e.dataTransfer.getData('srcIdx')||'0')); };
+        if(p){
+          const flag=showFlags()?flagHtml(p.nation,'10px',true):'';
+          const dot=`<span class="sub-dot" style="background:${catC}"></span>`;
+          row.innerHTML=`${dot}${flag}<span class="sub-name">${p.name.split(' ').pop()}</span><span class="sub-x" title="${t('removeFromLineup')||'Entfernen'}">✕</span>`;
+          row.title=p.name+(p.nation?' · '+p.nation:'');
+          row.draggable=true;
+          row.ondragstart=e=>{
+            dragId=pid; e.dataTransfer.setData('srcSlot',slot.k);
+            e.dataTransfer.setData('srcIdx',String(i));
+            e.dataTransfer.effectAllowed='move'; _ghostActive=true; showGhost(p,e);
+            const blank=document.createElement('canvas'); blank.width=1;blank.height=1; blank.style.cssText='position:fixed;top:-9999px';
+            document.body.appendChild(blank); e.dataTransfer.setDragImage(blank,0,0);
+            setTimeout(()=>{if(blank.parentNode)blank.parentNode.removeChild(blank);},0);
+            row.classList.add('drag-src');
+          };
+          row.ondragend=()=>{ dragId=null; row.classList.remove('drag-src'); hideGhost(); };
+          row.onclick=e=>{
+            e.stopPropagation();
+            if(e.target.classList.contains('sub-x')){
+              pushUndo();
+              lineup[slot.k]=(lineup[slot.k]||[]).filter(x=>x!==pid);
+              const rem2=(lineup[slot.k]||[]).filter(Boolean).length;
+              if(slotSubs[slot.k]>Math.max(1,rem2)) slotSubs[slot.k]=Math.max(1,rem2);
+              renderPitch(); renderList(); return;
+            }
+            selectP(pid);
+          };
+        } else {
+          row.classList.add('empty');
+          row.innerHTML=`<span class="sub-dot empty"></span><span class="sub-name" style="opacity:.5">+</span>`;
+          row.onclick=e=>{ e.stopPropagation(); selectedSlotKey=slot.k; selectedPid=null; openSlot(slot.k,slot.l,i,n); };
+        }
+        grp.appendChild(row);
+        continue;
+      }
 
       const sEl=document.createElement('div');
       sEl.className='slot'+(p?' filled':'')+(i>0?' sub':'');
@@ -3420,18 +3478,49 @@ async function buildTVCanvas(includeSubs=false){
     ctx.fillText(lastName,cx,ny+11);
   }
 
-  // Draw all starters (including sub-slots)
-  const BASE_R=46;
-  starters.forEach(({slot,p,subIdx})=>{
+  // Compact substitute row for the export (name chip under the starter)
+  function drawSubRow(p, slot, cx, topY){
+    const catC=slot.c==='gk'?'#f5c842':slot.c==='def'?'#2ecc71':slot.c==='mid'?'#5b6af5':'#e74c3c';
+    const name=p.name.trim().split(' ').pop();
+    ctx.font=`600 15px "Arial Narrow",Arial,sans-serif`;
+    const tw=ctx.measureText(name).width;
+    const w=tw+34, h=24;
+    const x=cx-w/2, y=topY;
+    // chip bg
+    ctx.fillStyle='rgba(8,10,22,0.9)';
+    rr(ctx,x,y,w,h,11); ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
+    rr(ctx,x,y,w,h,11); ctx.stroke();
+    // colored dot
+    ctx.save(); ctx.shadowColor=catC; ctx.shadowBlur=6;
+    ctx.fillStyle=catC; ctx.beginPath(); ctx.arc(x+13,y+h/2,4.5,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+    // name
+    ctx.fillStyle='rgba(230,230,248,0.95)'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(name, x+24, y+h/2+1);
+    return h+5; // height incl. gap
+  }
+
+  // Group entries by slot so subs stack under their starter
+  const bySlot={};
+  starters.forEach(e=>{ (bySlot[e.slot.k]=bySlot[e.slot.k]||[]).push(e); });
+
+  const BASE_R=44;
+  Object.values(bySlot).forEach(entries=>{
+    entries.sort((a,b)=>a.subIdx-b.subIdx);
+    const main=entries[0]; const slot=main.slot;
     const off=posOffsets[slot.k]||{dx:0,dy:0};
     const xPct=Math.max(3,Math.min(97,(slot.x||50)+(off.dx||0)))/100;
     const yPct=Math.max(3,Math.min(97,(slot._baseY||50)+(off.dy||0)/pitchElH*100))/100;
     const cx=ML+xPct*IW;
-    // Sub-slots shown slightly below and smaller
-    const subOffset=subIdx*(BASE_R*2.4+40); // enough space below name pill
-    const cy=MT+yPct*IH+subOffset;
-    const subR=subIdx===0?BASE_R:Math.round(BASE_R*0.65);
-    drawStarter(p,slot,cx,cy,subR,subIdx>0);
+    const cy=MT+yPct*IH;
+    // starter circle
+    drawStarter(main.p,slot,cx,cy,BASE_R,false);
+    // subs as compact rows below the name pill
+    let rowY=cy+BASE_R+34; // below starter name pill
+    entries.slice(1).forEach(({p})=>{
+      rowY += drawSubRow(p,slot,cx,rowY);
+    });
   });
 
   // ── Sidebar content ──────────────────────────────
