@@ -2260,17 +2260,19 @@ function parseHTML(text){
   const iHier = findCol('Einsatzzeiten','Status','Hierarchie','Squad Status');
   if(iName<0) return [];
 
-  // FM24 position map: "V (Z)" → IV, "M (Z)" → ZM etc.
-  function mapFM24Pos(raw){
-    if(!raw) return 'ST';
-    const r=raw.split(',')[0].trim(); // take first position only
-    // Pattern: TYPE (SIDE) e.g. "V (Z)", "M (RL)", "FV (R)", "DM", "TW", "ST (Z)"
-    const m=r.match(/^([A-Z\/]+)\s*(?:\(([RLZC]*)\))?/);
-    if(!m) return 'ST';
-    const type=m[1].toUpperCase(), side=(m[2]||'').toUpperCase();
-    if(type==='TW') return 'TW';
+  // FM24 position map. Takes the FULL cell (may contain several positions
+  // separated by commas, and newlines). Returns {main, alt}.
+  // "V (RL)" → main IV-ish by side; "OM (R), ST (Z)" → main OMR, alt ST
+  function mapOneFM24Pos(r){
+    if(!r) return null;
+    r=r.replace(/\s+/g,' ').trim();
+    // Pattern: TYPE (SIDE) e.g. "V (Z)", "M (RL)", "FV (R)", "DM", "TW", "ST (Z)", "M/OM (Z)"
+    const m=r.match(/^([A-Za-z\/]+)\s*(?:\(([RLZCrlzc ]*)\))?/);
+    if(!m) return null;
+    const type=m[1].toUpperCase(), side=(m[2]||'').toUpperCase().replace(/\s/g,'');
+    if(type==='TW'||type==='GK') return 'TW';
     if(type==='V'||type==='V/FV'){
-      if(side==='Z'||side==='ZL'||side==='ZR'||side==='RLZ'||side==='C') return 'IV';
+      if(side.includes('Z')||side==='C'||side==='') return 'IV';
       if(side.includes('L')&&!side.includes('R')) return 'LAV';
       if(side.includes('R')&&!side.includes('L')) return 'RAV';
       return 'IV';
@@ -2281,19 +2283,32 @@ function parseHTML(text){
       return 'RFV';
     }
     if(type==='DM'||type==='DM/M') return 'DM';
-    if(type==='M'||type==='M/OM'){
-      if(side.includes('L')&&!side.includes('R')&&!side.includes('Z')) return 'ZML';
-      if(side.includes('R')&&!side.includes('L')&&!side.includes('Z')) return 'ZMR';
+    if(type==='M'||type==='M/OM'||type==='M/AM'){
+      if(side.includes('Z')) return 'ZM';
+      if(side.includes('L')&&!side.includes('R')) return 'ZML';
+      if(side.includes('R')&&!side.includes('L')) return 'ZMR';
       return 'ZM';
     }
-    if(type==='OM'){
-      if(side.includes('L')&&!side.includes('R')&&!side.includes('Z')) return 'OML';
-      if(side.includes('R')&&!side.includes('L')&&!side.includes('Z')) return 'OMR';
+    if(type==='OM'||type==='AM'){
+      if(side.includes('Z')) return 'OM';
+      if(side.includes('L')&&!side.includes('R')) return 'OML';
+      if(side.includes('R')&&!side.includes('L')) return 'OMR';
       return 'OM';
     }
-    if(type==='ST') return 'ST';
-    if(type==='HS') return 'HS';
-    return 'ST';
+    if(type==='ST'||type==='SC'||type==='CF') return 'ST';
+    if(type==='HS'||type==='SS') return 'HS';
+    return null;
+  }
+
+  function mapFM24Positions(raw){
+    if(!raw) return {main:'ST',alt:null};
+    // split into position tokens by comma, but keep "V (RL)" intact.
+    // FM cell may look like: "V (RL)" or "OM (R),\nST (Z)" or "V (Z), DM"
+    const parts=raw.split(',').map(p=>p.replace(/\s+/g,' ').trim()).filter(Boolean);
+    const mapped=parts.map(mapOneFM24Pos).filter(Boolean);
+    const main=mapped[0]||'ST';
+    const alt=mapped.find(p=>p!==main)||null;
+    return {main,alt};
   }
 
   // FIFA 3-letter country code → flag emoji
@@ -2338,13 +2353,23 @@ function parseHTML(text){
     // collapse repeated whitespace/newlines from cell markup
     name=name.replace(/\s+/g,' ').trim();
     if(!name||name.length<2) continue;
-    const rawPos=g(iPos);
+    // position cell may separate positions with <br> instead of comma
+    let rawPos='';
+    if(iPos>=0&&cells[iPos]){
+      rawPos=cells[iPos].innerHTML
+        .replace(/<br\s*\/?>/gi,',')
+        .replace(/<[^>]+>/g,'')
+        .replace(/&nbsp;/gi,' ')
+        .replace(/&amp;/gi,'&')
+        .trim();
+    }
     const rawNat=g(iNat);
     const rawHier=g(iHier).toLowerCase();
+    const pos=mapFM24Positions(rawPos);
     out.push({
       name,
-      position: mapFM24Pos(rawPos),
-      altPos:   null,
+      position: pos.main,
+      altPos:   pos.alt,
       age:      parseInt(g(iAge))||null,
       nation:   CC2FLAG[rawNat]||null,
       club:     g(iClub),
