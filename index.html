@@ -2214,7 +2214,8 @@ function parseCSV(text){
   const out=[];
   for(let i=1;i<lines.length;i++){
     const row=lines[i].split(sep).map(c=>c.replace(/^"|"$/g,'').trim());
-    const name=cols.name>=0?row[cols.name]:'';
+    let name=cols.name>=0?row[cols.name]:'';
+    name=name.replace(/\s*[-–—]\s*(Auswählen|Auswahlen|Select|Auswahl|Wählen)\s*$/i,'').replace(/\s+/g,' ').trim();
     if(!name||name.length<2) continue;
     out.push({
       name,
@@ -2331,7 +2332,11 @@ function parseHTML(text){
     const cells=[...row.querySelectorAll('td')];
     if(!cells.length) continue;
     const g=i=>i>=0&&cells[i]?cells[i].textContent.trim():'';
-    const name=g(iName);
+    let name=g(iName);
+    // FM export appends an action link (e.g. "- Auswählen" / "- Select") in the name cell — strip it
+    name=name.replace(/\s*[-–—]\s*(Auswählen|Auswahlen|Select|Auswahl|Wählen)\s*$/i,'').trim();
+    // collapse repeated whitespace/newlines from cell markup
+    name=name.replace(/\s+/g,' ').trim();
     if(!name||name.length<2) continue;
     const rawPos=g(iPos);
     const rawNat=g(iNat);
