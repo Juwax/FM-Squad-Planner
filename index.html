@@ -89,6 +89,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .pm-gb{bottom:0;left:35%;width:30%;height:5%;border-bottom:none}
 /* POSITION GROUP */
 .pgrp{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0;z-index:10}
+.pgrp:has(.pgrp-lbl:hover){z-index:500}
 .pgrp-lbl{font-family:var(--ff);font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;background:rgba(0,0,0,.88);color:#fff;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-bottom:3px;cursor:grab;user-select:none;box-shadow:0 2px 6px rgba(0,0,0,.5);display:flex;align-items:center;gap:4px}
 .pgrp-collapse{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.5);font-size:9px;padding:0 1px;line-height:1;flex-shrink:0;transition:transform .2s,color .15s}
 .pgrp-collapse:hover{color:#fff}
@@ -1581,6 +1582,10 @@ function renderPitch(){
       '<div><span class="k">2×</span><b>'+t('posTipRename')+'</b> – '+t('posTipRenameDesc')+'</div>'+
       '<div><span class="k">▾</span><b>'+t('posTipCollapse')+'</b> – '+t('posTipCollapseDesc')+'</div>';
     lbl.appendChild(tip);
+
+    // Ensure tooltip/label render above other position groups (fallback for :has())
+    lbl.addEventListener('mouseenter',()=>{ grp.style.zIndex='500'; });
+    lbl.addEventListener('mouseleave',()=>{ grp.style.zIndex=''; });
 
     lbl.addEventListener('dblclick',e=>{ e.stopPropagation(); openEditPos(slot); });
 
