@@ -97,6 +97,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .pgrp-sub-count{font-size:9px;font-weight:700;background:rgba(255,255,255,.15);border-radius:8px;padding:0 5px;min-width:14px;text-align:center;display:none}
 .pgrp.collapsed .pgrp-sub-count{display:inline-block}
 .pgrp-lbl:hover{background:rgba(91,106,245,.7);color:#fff}
+.pgrp-lbl{position:relative}
+.pgrp-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(4,4,18,.98);border:1px solid var(--brd2);border-radius:6px;font-family:var(--fb);font-size:11px;font-weight:500;color:var(--text2);padding:7px 10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .14s;z-index:400;box-shadow:0 4px 14px rgba(0,0,0,.55);text-transform:none;letter-spacing:0;text-align:left;line-height:1.55}
+.pgrp-lbl:hover .pgrp-tip{opacity:1}
+.pgrp-tip b{color:var(--text);font-weight:700}
+.pgrp-tip .k{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:3px;padding:0 4px;font-family:var(--ff);font-size:9px;font-weight:700;margin-right:5px;color:#fff}
 /* SLOT */
 .slot{width:var(--slot-sz);height:var(--slot-sz);border-radius:50%;border:2px dashed rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s,width .2s,height .2s;position:relative;cursor:pointer;flex-shrink:0;overflow:hidden;background:rgba(0,0,0,.35);font-family:var(--ff);font-size:8px;font-weight:700;color:rgba(255,255,255,.22)}
 .slot img.face{width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;z-index:1}
@@ -289,6 +294,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
     <div class="pctrls">
       <div class="pctrl-row">
         <button class="btn b-g b-sm" onclick="saveFormationTab()" title="Aktuelle Formation speichern">💾 Formation speichern</button>
+        <button class="btn b-g b-sm" id="collapseAllBtn" onclick="toggleCollapseAll()" title="Alle Positionen ein-/ausklappen">▾ Alle einklappen</button>
         <button class="btn b-g b-sm" id="noteToggle" onclick="toggleNote()" title="Taktik-Notizen">📝</button>
       </div>
       <div class="ftabs" id="ftabs"></div>
@@ -326,7 +332,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
         <button class="cs-btn" style="background:var(--adim);border:1px solid var(--abrd);color:var(--acc2)" onclick="quickSave()" title="Speichern">💾</button>
         <button class="cs-btn" style="background:var(--card2);border:1px solid var(--brd2);color:var(--text2);margin-top:4px" onclick="openLoad()" title="Laden">📂</button>
         <div class="csb-div"></div>
-        <button class="cs-btn" style="background:var(--rdim);border:1px solid var(--red2);color:var(--red2);font-family:var(--ff);font-size:9px;font-weight:700;flex-direction:column;gap:1px;height:32px;width:44px" onclick="clearLineup()" title="Feld leeren">✕<span style="font-size:8px">leeren</span></button>
+        <button class="cs-btn" style="background:var(--rdim);border:1px solid var(--red2);color:var(--red2);font-family:var(--ff);font-size:9px;font-weight:700;flex-direction:column;gap:1px;height:32px;width:44px" onclick="clearLineup()" title="Feld leeren"><span id="clearFieldLbl" style="font-size:8px">✕ leeren</span></button>
       </div>
       <div class="pscroll" id="pscroll" ondragover="event.preventDefault()" ondrop="dropUnassign()">
         <div class="pitch-outer">
@@ -654,6 +660,42 @@ const LANGS={
     removeFromLineup:'Aus Aufstellung entfernen',
     editBtn:'Bearbeiten',
     deleteBtn:'Spieler löschen',
+    // ── UI additions ──
+    saveFormationBtn:'💾 Formation speichern',
+    saveFormationTip:'Aktuelle Formation als neuen Tab speichern',
+    collapseAllBtn:'▾ Alle einklappen',
+    expandAllBtn:'▸ Alle ausklappen',
+    collapseAllTip:'Alle Positionen ein-/ausklappen',
+    noteTip:'Taktik-Notizen',
+    posAll:'Alle',
+    ageSuffix:'J',
+    savedToast:'gespeichert',loadedToast:'geladen',loadConfirmSuffix:'laden?',
+    clubPlaceholder:'Dein Club / Save',
+    clearFieldLbl:'✕ leeren',
+    // Tooltips (topbar)
+    tipFontSmaller:'Schrift kleiner',
+    tipFontLarger:'Schrift größer',
+    tipUndo:'Letzte Aufstellung rückgängig (Strg+Z)',
+    tipPNG:'Spielfeld als PNG exportieren',
+    tipImport:'Kader aus Screenshot importieren',
+    tipFMExport:'Kader aus FM CSV/HTML importieren',
+    tipSave:'Kaderplan speichern',
+    tipLoad:'Kaderplan laden',
+    tipClearField:'Feld leeren',
+    tipApiKey:'Key anzeigen',
+    tipDeleteFormation:'Formation löschen',
+    // Position label tooltip
+    posTipMove:'Verschieben',posTipMoveDesc:'gedrückt halten und frei positionieren',
+    posTipRename:'Umbenennen',posTipRenameDesc:'Doppelklick auf die Position',
+    posTipCollapse:'Einklappen',posTipCollapseDesc:'Ersatzspieler ein-/ausblenden',
+    // Sub-player tooltip
+    subTipSelect:'Klick: auswählen',subTipSlot:'2× Klick: Slot auswählen',
+    subTipCollapse:'Ersatzspieler ein-/ausklappen',
+    // Flag placeholder
+    flagPlaceholderTip:'Nation nicht importiert – klicken zum Bearbeiten',
+    // List cell tooltips
+    tipAltPosSwitch:'Klicken: Nebenpos. wechseln',tipAltPosAdd:'Klicken: Nebenpos. hinzufügen',
+    tipHierChange:'Klicken zum Ändern',
     planLbl:'VEREIN',
   },
   en:{
@@ -762,6 +804,37 @@ const LANGS={
     removeFromLineup:'Remove from lineup',
     editBtn:'Edit',
     deleteBtn:'Delete player',
+    // ── UI additions ──
+    saveFormationBtn:'💾 Save formation',
+    saveFormationTip:'Save current formation as a new tab',
+    collapseAllBtn:'▾ Collapse all',
+    expandAllBtn:'▸ Expand all',
+    collapseAllTip:'Collapse/expand all positions',
+    noteTip:'Tactical notes',
+    posAll:'All',
+    ageSuffix:'y',
+    savedToast:'saved',loadedToast:'loaded',loadConfirmSuffix:'load?',
+    clubPlaceholder:'Your club / save',
+    clearFieldLbl:'✕ clear',
+    tipFontSmaller:'Smaller font',
+    tipFontLarger:'Larger font',
+    tipUndo:'Undo last lineup (Ctrl+Z)',
+    tipPNG:'Export pitch as PNG',
+    tipImport:'Import squad from screenshot',
+    tipFMExport:'Import squad from FM CSV/HTML',
+    tipSave:'Save squad plan',
+    tipLoad:'Load squad plan',
+    tipClearField:'Clear pitch',
+    tipApiKey:'Show key',
+    tipDeleteFormation:'Delete formation',
+    posTipMove:'Move',posTipMoveDesc:'hold and drag to position freely',
+    posTipRename:'Rename',posTipRenameDesc:'double-click the position',
+    posTipCollapse:'Collapse',posTipCollapseDesc:'show/hide substitutes',
+    subTipSelect:'Click: select',subTipSlot:'Double-click: select slot',
+    subTipCollapse:'Show/hide substitutes',
+    flagPlaceholderTip:'Nation not imported – click to edit',
+    tipAltPosSwitch:'Click: switch alt. position',tipAltPosAdd:'Click: add alt. position',
+    tipHierChange:'Click to change',
     planLbl:'CLUB',
   },
   es:{
@@ -870,6 +943,37 @@ const LANGS={
     removeFromLineup:'Quitar de alineación',
     editBtn:'Editar',
     deleteBtn:'Eliminar jugador',
+    // ── UI additions ──
+    saveFormationBtn:'💾 Guardar formación',
+    saveFormationTip:'Guardar la formación actual como nueva pestaña',
+    collapseAllBtn:'▾ Contraer todo',
+    expandAllBtn:'▸ Expandir todo',
+    collapseAllTip:'Contraer/expandir todas las posiciones',
+    noteTip:'Notas tácticas',
+    posAll:'Todas',
+    ageSuffix:'a',
+    savedToast:'guardado',loadedToast:'cargado',loadConfirmSuffix:'¿cargar?',
+    clubPlaceholder:'Tu club / guardar',
+    clearFieldLbl:'✕ vaciar',
+    tipFontSmaller:'Fuente más pequeña',
+    tipFontLarger:'Fuente más grande',
+    tipUndo:'Deshacer última alineación (Ctrl+Z)',
+    tipPNG:'Exportar campo como PNG',
+    tipImport:'Importar plantilla desde captura',
+    tipFMExport:'Importar plantilla desde CSV/HTML de FM',
+    tipSave:'Guardar plan de plantilla',
+    tipLoad:'Cargar plan de plantilla',
+    tipClearField:'Vaciar campo',
+    tipApiKey:'Mostrar clave',
+    tipDeleteFormation:'Eliminar formación',
+    posTipMove:'Mover',posTipMoveDesc:'mantén pulsado y arrastra libremente',
+    posTipRename:'Renombrar',posTipRenameDesc:'doble clic en la posición',
+    posTipCollapse:'Contraer',posTipCollapseDesc:'mostrar/ocultar suplentes',
+    subTipSelect:'Clic: seleccionar',subTipSlot:'Doble clic: seleccionar hueco',
+    subTipCollapse:'Mostrar/ocultar suplentes',
+    flagPlaceholderTip:'Nación no importada – clic para editar',
+    tipAltPosSwitch:'Clic: cambiar pos. secundaria',tipAltPosAdd:'Clic: añadir pos. secundaria',
+    tipHierChange:'Clic para cambiar',
     planLbl:'CLUB',
   },
 };
@@ -911,6 +1015,7 @@ function setLang(l){
   // Update all static text
   document.getElementById('appTitle').textContent=t('appTitle');
   const pl=document.getElementById('planLbl'); if(pl) pl.textContent=t('planLbl')||'PLAN';
+  const tlbl=document.getElementById('teamLbl'); if(tlbl&&tlbl.style.fontStyle==='italic') tlbl.textContent=t('clubPlaceholder');
   document.getElementById('byLine').textContent=t('by');
   document.getElementById('addPlayerTopBtn').textContent=t('addPlayer');
   document.getElementById('undoBtn').textContent=t('undoBtn');
@@ -979,6 +1084,24 @@ function setLang(l){
   const abLlbl=document.getElementById('abLlbl'); if(abLlbl) abLlbl.textContent=t('abL');
   const abTlbl=document.getElementById('abTlbl'); if(abTlbl) abTlbl.textContent=t('abT');
   const abBlbl=document.getElementById('abBlbl'); if(abBlbl) abBlbl.textContent=t('abB');
+  // Left panel buttons + tooltips
+  const _sT=(id,txtKey,tipKey)=>{ const el=document.getElementById(id); if(!el)return; if(txtKey&&t(txtKey)!==txtKey) el.textContent=t(txtKey); if(tipKey&&t(tipKey)!==tipKey) el.title=t(tipKey); };
+  const _tip=(sel,tipKey)=>{ const el=typeof sel==='string'?document.querySelector(sel):sel; if(el&&t(tipKey)!==tipKey) el.title=t(tipKey); };
+  const saveFBtn=document.querySelector('[onclick="saveFormationTab()"]'); if(saveFBtn){ saveFBtn.textContent=t('saveFormationBtn'); saveFBtn.title=t('saveFormationTip'); }
+  _sT('noteToggle',null,'noteTip');
+  updateCollapseAllBtn(); // sets its own text+title in current lang
+  // Topbar tooltips
+  _tip('[onclick="adjFont(-1)"]','tipFontSmaller');
+  _tip('[onclick="adjFont(1)"]','tipFontLarger');
+  _tip('#undoBtn','tipUndo');
+  _tip('[onclick="exportPNG()"]','tipPNG');
+  _tip('[onclick="openImport()"]','tipImport');
+  _tip('[onclick="openCSVImport()"]','tipFMExport');
+  _tip('[onclick="quickSave()"]','tipSave');
+  _tip('[onclick="openLoad()"]','tipLoad');
+  _tip('[onclick="clearLineup()"]','tipClearField');
+  const cfl=document.getElementById('clearFieldLbl'); if(cfl) cfl.textContent=t('clearFieldLbl');
+  _tip('#apiKeyToggle','tipApiKey');
   renderAll();
 }
 // Init lang
@@ -1117,11 +1240,19 @@ function flagToCode(flag){
   }catch(e){}
   return null;
 }
-// Render flag: img from flagcdn.com with emoji text fallback
-function flagHtml(nation, size='13px', inline=false){
-  if(!nation) return '';
-  const code=flagToCode(nation);
+// Render flag: img from flagcdn.com with emoji text fallback.
+// When nation is empty, renders a neutral placeholder flag (grey) so it's clear
+// the country wasn't imported. Pass allowPlaceholder=false to suppress that.
+function flagHtml(nation, size='13px', inline=false, allowPlaceholder=true){
   const st=inline?`display:inline-block;vertical-align:middle;margin-right:2px`:`display:block;margin:0 auto`;
+  if(!nation){
+    if(!allowPlaceholder) return '';
+    // neutral placeholder: grey rectangle with a faint globe, matching flag proportions
+    const h=parseInt(size)||13;
+    const w=Math.round(h*1.5);
+    return `<span title="${t('flagPlaceholderTip')}" style="${st};width:${w}px;height:${size};background:linear-gradient(135deg,#3a4152,#2a3040);border:1px solid rgba(255,255,255,.12);border-radius:1px;line-height:${size};text-align:center;font-size:${Math.round(h*0.7)}px;color:rgba(255,255,255,.4);overflow:hidden">🏳</span>`;
+  }
+  const code=flagToCode(nation);
   if(code){
     const h=parseInt(size)||13;
     return `<img src="https://flagcdn.com/h20/${code.toLowerCase()}.png" alt="${nation}"
@@ -1207,7 +1338,7 @@ function renderFTabs(){
   const custom=getCustomFormationTabs();
   document.getElementById('ftabs').innerHTML=[
     ...Object.keys(BUILTIN_FORMS).map(f=>`<div class="ft${f===formation?' on':''}" onclick="setFormation('${f}')">${f}</div>`),
-    ...custom.map((cf,i)=>`<div class="ft${cf.id===formation?' on':''}" style="color:var(--gold2);border-color:rgba(232,160,32,.3);display:flex;align-items:center;gap:4px;padding-right:4px" onclick="loadFormationTab(${i})" title="${cf.name}">${cf.name}<span onclick="event.stopPropagation();deleteFormationTab(${i})" style="font-size:9px;opacity:.5;cursor:pointer;padding:1px 3px;border-radius:2px;transition:all .15s;font-family:var(--ff)" onmouseover="this.style.opacity=1;this.style.background='rgba(231,76,60,.3)'" onmouseout="this.style.opacity=.5;this.style.background=''" title="Formation löschen">✕</span></div>`)
+    ...custom.map((cf,i)=>`<div class="ft${cf.id===formation?' on':''}" style="color:var(--gold2);border-color:rgba(232,160,32,.3);display:flex;align-items:center;gap:4px;padding-right:4px" onclick="loadFormationTab(${i})" title="${cf.name}">${cf.name}<span onclick="event.stopPropagation();deleteFormationTab(${i})" style="font-size:9px;opacity:.5;cursor:pointer;padding:1px 3px;border-radius:2px;transition:all .15s;font-family:var(--ff)" onmouseover="this.style.opacity=1;this.style.background='rgba(231,76,60,.3)'" onmouseout="this.style.opacity=.5;this.style.background=''" title="${t('tipDeleteFormation')}">✕</span></div>`)
   ].join('');
   // tbadge removed
 }
@@ -1217,7 +1348,7 @@ function saveFormationTab(){
   // If no name set yet, ask for one directly
   let name=(formationName&&!formationName.startsWith('cf_'))?formationName:'';
   if(!name){
-    const v=prompt('Formation benennen:',formation||'Meine Formation');
+    const v=prompt(t('renameFPrompt'),formation||'Meine Formation');
     if(!v||!v.trim()) return;
     name=v.trim();
   }
@@ -1277,8 +1408,36 @@ function setFormation(f){
   renderAll();
 }
 function renameFormation(){
-  const v=prompt('Formation benennen:',formationName||formation);
+  const v=prompt(t('renameFPrompt'),formationName||formation);
   if(v!==null){ formationName=v.trim(); renderFTabs(); }
+}
+
+// Collapse/expand ALL position groups at once (global equivalent of the
+// per-position ▾ arrow). Only groups that actually have sub-players are affected.
+let allCollapsed=false;
+function toggleCollapseAll(){
+  const slots=allSlots();
+  // a slot is collapsible only if it has at least one filled sub-player (index>0)
+  const collapsible=slots.filter(s=>{
+    const arr=lineup[s.k]||[];
+    return arr.slice(1).some(Boolean);
+  });
+  // decide target state: if anything is currently expanded → collapse all; else expand all
+  const anyExpanded=collapsible.some(s=>!collapsedSlots.has(s.k));
+  allCollapsed=anyExpanded;
+  if(allCollapsed){
+    collapsible.forEach(s=>collapsedSlots.add(s.k));
+  }else{
+    collapsible.forEach(s=>collapsedSlots.delete(s.k));
+  }
+  updateCollapseAllBtn();
+  renderPitch();
+}
+function updateCollapseAllBtn(){
+  const btn=document.getElementById('collapseAllBtn');
+  if(!btn) return;
+  btn.textContent=allCollapsed?t('expandAllBtn'):t('collapseAllBtn');
+  btn.title=t('collapseAllTip');
 }
 
 // Add new position slot
@@ -1414,7 +1573,15 @@ function renderPitch(){
     subCount.className='pgrp-sub-count';
     lbl.appendChild(subCount);
 
-    lbl.title='Ziehen: verschieben · Doppelklick: bearbeiten';
+    // Styled hover tooltip explaining the label's interactions
+    const tip=document.createElement('div');
+    tip.className='pgrp-tip';
+    tip.innerHTML=
+      '<div><span class="k">DRAG</span><b>'+t('posTipMove')+'</b> – '+t('posTipMoveDesc')+'</div>'+
+      '<div><span class="k">2×</span><b>'+t('posTipRename')+'</b> – '+t('posTipRenameDesc')+'</div>'+
+      '<div><span class="k">▾</span><b>'+t('posTipCollapse')+'</b> – '+t('posTipCollapseDesc')+'</div>';
+    lbl.appendChild(tip);
+
     lbl.addEventListener('dblclick',e=>{ e.stopPropagation(); openEditPos(slot); });
 
     let dragging=false, dx0=0, dy0=0, left0=0, top0=0;
@@ -1439,7 +1606,7 @@ function renderPitch(){
     const colBtn=document.createElement('button');
     colBtn.className='pgrp-collapse';
     colBtn.textContent='▾';
-    colBtn.title='Ersatzspieler ein-/ausklappen';
+    colBtn.title=t('subTipCollapse');
     colBtn.addEventListener('mousedown',e=>e.stopPropagation());
     colBtn.addEventListener('click',e=>{
       e.stopPropagation();
@@ -1534,9 +1701,9 @@ function renderPitch(){
       const snw=document.createElement('div'); snw.className='snwrap';
       const snl=document.createElement('div'); snl.className='snlbl';
       if(p){
-        const flag=(p.nation&&showFlags())?flagHtml(p.nation,'11px',true):'';
+        const flag=showFlags()?flagHtml(p.nation,'11px',true):'';
         snl.innerHTML=flag+`<span>${p.name.split(' ').pop()}</span>`;
-        const tip=document.createElement('div'); tip.className='sntip'; tip.textContent=p.name+(p.nation?' '+p.nation:'')+'  ·  Klick: auswählen  ·  2× Klick: Slot auswählen'; snw.appendChild(tip);
+        const tip=document.createElement('div'); tip.className='sntip'; tip.textContent=p.name+(p.nation?' '+p.nation:'')+'  ·  '+t('subTipSelect')+'  ·  '+t('subTipSlot'); snw.appendChild(tip);
         snw.appendChild(snl);
         // ✕ remove badge — visible on hover
         const rem=document.createElement('div');
@@ -1815,7 +1982,7 @@ function renderPPills(){
     const cnt=posCnt[p]||0;
     const low=p!=='Alle'&&cnt<2;
     const cntHtml=p!=='Alle'?`<span style="font-size:9px;margin-left:3px;opacity:.8;color:${low?'var(--red2)':'inherit'}">${cnt}</span>`:'';
-    return `<div class="ppill${p===activePos?' on':''}" onclick="setPos('${p}')" style="${low?'color:var(--red2)':''}">${p}${cntHtml}</div>`;
+    return `<div class="ppill${p===activePos?' on':''}" onclick="setPos('${p}')" style="${low?'color:var(--red2)':''}">${p==='Alle'?t('posAll'):p}${cntHtml}</div>`;
   }).join('');
 }
 function setPos(p){ if(p==='|')return; activePos=p; renderPPills(); renderList(); }
@@ -1899,15 +2066,15 @@ function rowHTML(p,prim,assigned,selSlot){
           return `<div class="pc c-pos" style="flex-direction:column;align-items:flex-start;gap:2px">
             <span style="background:${posC}22;color:${posC};padding:1px 5px;border-radius:3px;font-family:var(--ff);font-size:10px;font-weight:700;cursor:default">${p.position}</span>
             <span style="background:${p.altPos?(altC+'18'):'rgba(255,255,255,.04)'};color:${p.altPos?altC:'var(--text3)'};padding:1px 5px;border-radius:3px;font-family:var(--ff);font-size:9px;font-weight:700;cursor:pointer;opacity:${p.altPos?'.85':'.45'};transition:all .15s;border:1px dashed ${p.altPos?(altC+'44'):'rgba(255,255,255,.12)'}"
-              title="${p.altPos?'Klicken: Nebenpos. wechseln':'Klicken: Nebenpos. hinzufügen'}"
+              title="${p.altPos?t('tipAltPosSwitch'):t('tipAltPosAdd')}"
               onclick="event.stopPropagation();cycleAltPos('${p.id}')"
             >${p.altPos||t('altNeben')}</span>
           </div>`;
         }
         case 'num': return `<div class="pc c-num">${p.number||'—'}</div>`;
-        case 'name': return `<div class="pc c-name"><div class="pav" style="background:${c}22;color:${c}">${fHtml}</div><div style="min-width:0;flex:1"><div class="pnfull">${p.nation?flagHtml(p.nation,'14px',true):''}${p.name}${inP?`<span style="font-size:8px;background:var(--adim);color:var(--acc2);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterStarter').slice(0,4)}</span>`:''}${inS?`<span style="font-size:8px;background:rgba(91,106,245,.1);color:rgba(91,106,245,.6);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterSub').slice(0,3)}</span>`:''}</div><div class="psub" style="font-size:10px;color:var(--text3)">${p.position}${p.age?' · '+p.age+'J':''}</div></div></div>`;
+        case 'name': return `<div class="pc c-name"><div class="pav" style="background:${c}22;color:${c}">${fHtml}</div><div style="min-width:0;flex:1"><div class="pnfull">${flagHtml(p.nation,'14px',true)}${p.name}${inP?`<span style="font-size:8px;background:var(--adim);color:var(--acc2);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterStarter').slice(0,4)}</span>`:''}${inS?`<span style="font-size:8px;background:rgba(91,106,245,.1);color:rgba(91,106,245,.6);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterSub').slice(0,3)}</span>`:''}</div><div class="psub" style="font-size:10px;color:var(--text3)">${p.position}${p.age?' · '+p.age+t('ageSuffix'):''}</div></div></div>`;
         case 'age': return `<div class="pc c-age">${p.age||'—'}</div>`;
-        case 'hier': return `<div class="pc c-hier"><span class="hbdg" style="background:${h.bg};color:${h.c};cursor:pointer" title="Klicken zum Ändern" onclick="event.stopPropagation();cycleHier('${p.id}')">${h.l}</span></div>`;
+        case 'hier': return `<div class="pc c-hier"><span class="hbdg" style="background:${h.bg};color:${h.c};cursor:pointer" title="${t('tipHierChange')}" onclick="event.stopPropagation();cycleHier('${p.id}')">${h.l}</span></div>`;
         case 'club': return `<div class="pc c-club" title="${p.club||''}" style="font-size:11px">${p.club||'—'}</div>`;
         case 'note': return `<div class="pc c-note">
   ${p.note?`<button class="ibtn" onclick="event.stopPropagation();openNote('${p.id}')" onmouseenter="showNoteTooltip(event,'${p.id}')" onmouseleave="hideNoteTooltip()" style="color:var(--gold2);font-size:13px" title="">📝</button>`:`<button class="ibtn" onclick="event.stopPropagation();openNote('${p.id}')" style="opacity:.2;font-size:13px" title="">📝</button>`}
@@ -2047,27 +2214,37 @@ function packState(name){
     SC:JSON.parse(JSON.stringify(SC)),
     SCA:JSON.parse(JSON.stringify(SCA))};
 }
+// Returns the entered club/save name, or '' if only the italic placeholder is shown
+function getClubName(){
+  const lbl=document.getElementById('teamLbl');
+  if(!lbl) return '';
+  return lbl.style.fontStyle==='italic' ? '' : lbl.textContent.trim();
+}
 function quickSave(){
-  const name=prompt('Plan-Name:',formationName||formation+' '+new Date().toLocaleDateString('de'));
+  const club=getClubName();
+  // Prefill with the club name; if none set, use the placeholder text so it's clear
+  const placeholder=document.getElementById('teamLbl')?.textContent.trim()||t('clubPlaceholder');
+  const suggestion=club||placeholder;
+  const name=prompt(t('savePrompt'),suggestion);
   if(!name)return;
   const saves=getSaves(); saves.unshift(packState(name)); if(saves.length>20)saves.pop();
   localStorage.setItem(SK,JSON.stringify(saves));
-  showToast('✓ "'+name+'" gespeichert','var(--green2)');
+  showToast('✓ "'+name+'" '+t('savedToast'),'var(--green2)');
 }
 function openLoad(){
   const saves=getSaves();
   const el=document.getElementById('saveList');
-  if(!saves.length){ el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center;font-family:var(--fb)">Noch keine gespeicherten Pläne.</div>'; }
-  else el.innerHTML=saves.map((s,i)=>`<div class="save-item"><div style="flex:1"><div class="save-item-name">${s.name}</div><div class="save-item-date">${s.formation}${s.formationName?' · '+s.formationName:''} · ${new Date(s.ts).toLocaleString('de',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div></div><button class="btn b-g b-sm" onclick="loadSave(${i})">Laden</button><button class="btn b-d b-sm" onclick="deleteSave(${i})">✕</button></div>`).join('');
+  if(!saves.length){ el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center;font-family:var(--fb)">'+t('noSaves')+'</div>'; }
+  else el.innerHTML=saves.map((s,i)=>`<div class="save-item"><div style="flex:1"><div class="save-item-name">${s.name}</div><div class="save-item-date">${s.formation}${s.formationName?' · '+s.formationName:''} · ${new Date(s.ts).toLocaleString(lang,{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div></div><button class="btn b-g b-sm" onclick="loadSave(${i})">${t('loadBtn')}</button><button class="btn b-d b-sm" onclick="deleteSave(${i})">✕</button></div>`).join('');
   document.getElementById('modSave').classList.remove('hidden');
 }
-function loadSave(i){ const s=getSaves()[i]; if(!s)return; if(!confirm(`"${s.name}" laden?`))return;
+function loadSave(i){ const s=getSaves()[i]; if(!s)return; if(!confirm(`"${s.name}" ${t('loadConfirmSuffix')}`))return;
   formation=s.formation||'3-4-2-1'; formationName=s.formationName||'';
   lineup=s.lineup||{}; players=s.players||[]; slotSubs=s.slotSubs||{};
   posOffsets=s.posOffsets||{}; customRows=s.customRows||{};
   if(s.builtinSnapshot){ Object.keys(s.builtinSnapshot).forEach(f=>{ if(BUILTIN_FORMS[f]) BUILTIN_FORMS[f]=s.builtinSnapshot[f]; }); }
   if(s.SC)Object.assign(SC,s.SC); if(s.SCA)Object.assign(SCA,s.SCA); if(s.tacticNote){localStorage.setItem('fm26_tacticNote_'+(s.formation||''),s.tacticNote);}
-  document.getElementById('modSave').classList.add('hidden'); renderAll(); showToast('"'+s.name+'" geladen','var(--acc2)');
+  document.getElementById('modSave').classList.add('hidden'); renderAll(); showToast('"'+s.name+'" '+t('loadedToast'),'var(--acc2)');
 }
 function deleteSave(i){ const saves=getSaves(); saves.splice(i,1); localStorage.setItem(SK,JSON.stringify(saves)); openLoad(); }
 function showToast(msg,color){ const t=document.createElement('div'); t.style.cssText=`position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${color};color:#000;padding:8px 20px;border-radius:6px;font-family:var(--ff);font-weight:700;font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap`; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
@@ -2133,7 +2310,7 @@ function parseCSVOrHTML(text, filename){
       +'<span style="font-size:14px">'+(p.nation||'🌍')+'</span>'
       +'<div style="flex:1;min-width:0">'
         +'<div style="font-family:var(--ff);font-size:13px;font-weight:700">'+p.name+(exists?' <span style="font-size:9px;background:rgba(232,160,32,.2);color:var(--gold2);padding:1px 5px;border-radius:3px">vorhanden</span>':'')+'</div>'
-        +'<div style="font-size:10px;color:var(--text3)">'+p.position+' · '+(p.age||'?')+'J. · '+(p.club||'')+'</div>'
+        +'<div style="font-size:10px;color:var(--text3)">'+p.position+' · '+(p.age||'?')+t('ageSuffix')+'. · '+(p.club||'')+'</div>'
       +'</div>'
       +'<span style="font-size:10px;color:var(--acc2);font-family:var(--ff)">'+p.position+'</span>'
       +'<input type="checkbox" class="csv-check" data-idx="'+i+'" checked style="width:16px;height:16px;accent-color:var(--acc)">'
@@ -2613,7 +2790,7 @@ Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
         +'<span style="font-size:16px">'+(p.nation||'🏴')+'</span>'
         +'<div style="flex:1;min-width:0">'
           +'<div style="font-family:var(--ff);font-size:13px;font-weight:700">'+p.name+dupl+'</div>'
-          +'<div style="font-size:10px;color:var(--text3)">'+(p.position||'?')+' · '+(p.age||'?')+'J. '+(p.number?'#'+p.number:'')+'</div>'
+          +'<div style="font-size:10px;color:var(--text3)">'+(p.position||'?')+' · '+(p.age||'?')+t('ageSuffix')+'. '+(p.number?'#'+p.number:'')+'</div>'
         +'</div>'
         +'<span style="background:'+posC+'22;color:'+posC+';padding:2px 7px;border-radius:3px;font-family:var(--ff);font-size:10px;font-weight:700">'+(p.position||'?')+'</span>'
         +'<input type="checkbox" class="import-check" data-idx="'+i+'" checked style="width:16px;height:16px;accent-color:var(--acc)">'
@@ -3025,7 +3202,7 @@ async function buildTVCanvas(includeSubs=false){
   ctx.font=`bold 13px "Arial Narrow",Arial,sans-serif`;
   ctx.fillStyle='rgba(0,200,180,0.9)'; ctx.textAlign='left'; ctx.textBaseline='top';
   ctx.letterSpacing='2px';
-  ctx.fillText('KADER', SX2, 24);
+  ctx.fillText(t('sectionSquad').toUpperCase(), SX2, 24);
   ctx.letterSpacing='0px';
   ctx.fillStyle='rgba(0,200,180,0.2)'; ctx.fillRect(SX2,44,SW,1);
 
@@ -3086,7 +3263,7 @@ async function buildTVCanvas(includeSubs=false){
     if(p.age){
       ctx.font=`10px "Arial Narrow",Arial,sans-serif`;
       ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.textAlign='left';
-      ctx.fillText(p.age+'J', textX+pw2+6, ay+9);
+      ctx.fillText(p.age+t('ageSuffix'), textX+pw2+6, ay+9);
     }
     ctx.restore();
   }
@@ -3103,7 +3280,7 @@ async function buildTVCanvas(includeSubs=false){
   }
 
   if(bench.length){
-    drawSectionHeader('ERSATZ','rgba(0,200,180,0.6)');
+    drawSectionHeader(t('sectionSub').toUpperCase(),'rgba(0,200,180,0.6)');
     bench.forEach(p=>{
       if(sbY+cardH>H-20) return;
       drawSideCard(p, SX2, sbY, SW, cardH, false);
@@ -3114,7 +3291,7 @@ async function buildTVCanvas(includeSubs=false){
 
   if(unassigned.length){
     ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(SX2,sbY,SW,1); sbY+=10;
-    drawSectionHeader('KADER','rgba(180,180,220,0.5)');
+    drawSectionHeader(t('sectionSquad').toUpperCase(),'rgba(180,180,220,0.5)');
     unassigned.forEach(p=>{
       if(sbY+cardH>H-20) return;
       drawSideCard(p, SX2, sbY, SW, cardH, true);
@@ -3211,7 +3388,7 @@ function closeNote(){
 // ══════════════════════════════════
 // MISC
 // ══════════════════════════════════
-function clearLineup(){ if(!confirm('Aufstellung leeren?'))return; pushUndo(); lineup={}; slotSubs={}; posOffsets={}; collapsedSlots=new Set(); renderAll(); }
+function clearLineup(){ if(!confirm(t('clearConfirm')))return; pushUndo(); lineup={}; slotSubs={}; posOffsets={}; collapsedSlots=new Set(); renderAll(); }
 let _clearStep=0;
 function openClearConfirm(){
   const n=players.length;
@@ -3245,8 +3422,8 @@ function removeFromLineup(id){
   });
   renderAll();
 }
-function resetBVB(){ if(!confirm('BVB FM26.2 laden?'))return; formation='3-4-2-1'; initBVB(); renderAll(); }
-function promptTeam(){ const lbl=document.getElementById('teamLbl'); const cur=lbl.style.fontStyle==='italic'?'':lbl.textContent; const v=prompt('Vereinsname / Savename:',cur); if(v&&v.trim()){lbl.textContent=v.trim();lbl.style.opacity='';lbl.style.fontStyle='';} }
+function resetBVB(){ if(!confirm(t('resetConfirm')))return; formation='3-4-2-1'; initBVB(); renderAll(); }
+function promptTeam(){ const lbl=document.getElementById('teamLbl'); const cur=lbl.style.fontStyle==='italic'?'':lbl.textContent; const v=prompt(t('renameTeamPrompt'),cur); if(v&&v.trim()){lbl.textContent=v.trim();lbl.style.opacity='';lbl.style.fontStyle='';} }
 
 // RESIZE HANDLE
 (function(){
