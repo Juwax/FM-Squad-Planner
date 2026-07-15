@@ -10,8 +10,8 @@
 :root{
   --bg:#0b0b16;--panel:#111120;--panel2:#161628;--card:#1b1b30;--card2:#20203a;--hover:#252545;
   --fs:13px; /* base font size — controlled by A-/A+ buttons */
-  --slot-sz:46px;     /* primary slot diameter */
-  --slot-sub:26px;    /* sub slot diameter */
+  --slot-sz:52px;     /* primary slot diameter */
+  --slot-sub:24px;    /* sub slot diameter */
   --prow-h:42px;      /* player row height */
   --pav-sz:28px;      /* player avatar in list */
   --snlbl-sz:10px;    /* slot name label */
@@ -77,8 +77,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .cs-btn{width:44px;padding:5px 0;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;border:none;transition:all .15s}
 /* PITCH SCROLL */
 .pscroll{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:6px 4px;min-height:0}
-.pitch-outer{flex-shrink:0;max-width:100%}
-.pitch{width:100%;aspect-ratio:68/104;background:#376b37;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
+.pitch-outer{flex-shrink:0;max-width:100%;max-height:100%}
+.pitch{width:100%;height:100%;background:#376b37;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
 /* Feine Rasen-Körnung (Noise) — optional, per .grass-noise umschaltbar.
    Eigene Ebene über der Rasenfarbe, unter Mustern/Spielern. */
 .pitch.grass-noise>.grass-tex{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;z-index:0;opacity:.5;mix-blend-mode:overlay;
@@ -167,6 +167,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .slot.sub .snum-in{height:12px;font-size:8px;line-height:12px}
 .snwrap{position:relative;display:inline-flex;flex-direction:row;align-items:center;gap:3px;margin-top:2px;max-width:140px}
 .snlbl{font-family:var(--ff);font-size:var(--snlbl-sz);font-weight:700;color:rgba(230,230,255,.95);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.4;pointer-events:none}
+.snlbl-main{font-size:calc(var(--snlbl-sz) * 1.15);font-weight:800;color:#fff}
+.snlbl-sub{font-size:calc(var(--snlbl-sz) * 0.88);font-weight:600;color:rgba(210,210,235,.82)}
 .sntip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:rgba(4,4,18,.97);border:1px solid var(--brd2);border-radius:4px;font-family:var(--ff);font-size:11px;font-weight:700;color:var(--text);padding:3px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:300}
 .snwrap:hover .sntip{opacity:1}
 .slot-conn{width:1.5px;height:5px;background:rgba(255,255,255,.2);pointer-events:none;align-self:center}
@@ -1385,8 +1387,8 @@ function applyFontScale(fs){
   const r=document.documentElement;
   const s=fs/13; // scale factor relative to base 13px
   r.style.setProperty('--fs',       fs+'px');
-  r.style.setProperty('--slot-sz',  Math.round(46*s)+'px');
-  r.style.setProperty('--slot-sub', Math.round(26*s)+'px');
+  r.style.setProperty('--slot-sz',  Math.round(52*s)+'px');
+  r.style.setProperty('--slot-sub', Math.round(24*s)+'px');
   r.style.setProperty('--prow-h',   Math.round(42*s)+'px');
   r.style.setProperty('--pav-sz',   Math.round(28*s)+'px');
   r.style.setProperty('--snlbl-sz', Math.round(10*s)+'px');
@@ -1623,22 +1625,29 @@ function faceHTML(fmId,c,initials){
 // ══════════════════════════════════
 // PITCH RENDER
 // ══════════════════════════════════
-// Size the pitch so it always fits fully in the visible area (no cutoff):
-// height is capped by the scroll area; width follows the 68:104 ratio.
-const PITCH_RATIO=68/104; // width/height
+// Size the pitch: use the FULL available width; if that would make it taller
+// than the visible area, cap the height instead (so nothing is cut off).
+// The field may become a bit wider than the true 68:104 ratio to fill the space.
+const PITCH_RATIO=68/104; // natural width/height
 function fitPitch(){
   const sc=document.querySelector('.pscroll');
   const outer=document.querySelector('.pitch-outer');
-  if(!sc||!outer) return;
+  const pitch=document.getElementById('pitch');
+  if(!sc||!outer||!pitch) return;
   const cs=getComputedStyle(sc);
   const padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
   const padY=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
   const availW=sc.clientWidth - padX;
   const availH=sc.clientHeight - padY;
   if(availW<=0||availH<=0) return;
-  // width limited by both available width and (height * ratio)
-  const w=Math.min(availW, availH*PITCH_RATIO);
-  outer.style.width=Math.floor(w)+'px';
+  // Take full width; height from ratio, but never exceed available height.
+  let w=availW;
+  let h=Math.min(availH, w/PITCH_RATIO);
+  w=Math.floor(w); h=Math.floor(h);
+  outer.style.width=w+'px';
+  outer.style.height=h+'px';
+  pitch.style.width=w+'px';
+  pitch.style.height=h+'px';
 }
 
 function renderPitch(){
@@ -1820,10 +1829,10 @@ function renderPitch(){
       grp.appendChild(sEl);
 
       // Name + flag + remove button
-      const snw=document.createElement('div'); snw.className='snwrap';
-      const snl=document.createElement('div'); snl.className='snlbl';
+      const snw=document.createElement('div'); snw.className='snwrap'+(i===0?' snwrap-main':' snwrap-sub');
+      const snl=document.createElement('div'); snl.className='snlbl'+(i===0?' snlbl-main':' snlbl-sub');
       if(p){
-        const flag=showFlags()?flagHtml(p.nation,'11px',true):'';
+        const flag=showFlags()?flagHtml(p.nation,i===0?'12px':'9px',true):'';
         snl.innerHTML=flag+`<span>${p.name.split(' ').pop()}</span>`;
         const tip=document.createElement('div'); tip.className='sntip'; tip.textContent=p.name+(p.nation?' '+p.nation:'')+'  ·  '+t('subTipSelect')+'  ·  '+t('subTipSlot'); snw.appendChild(tip);
         snw.appendChild(snl);
@@ -3671,6 +3680,9 @@ initBVB();
 renderAll();
 // Apply saved lang on startup
 setLang(lang);
+// Ensure pitch fits after fonts/layout settle
+window.addEventListener('load',()=>{ fitPitch(); renderPitch(); });
+[100,300,600].forEach(ms=>setTimeout(()=>{ fitPitch(); renderPitch(); }, ms));
 
 // ── Global styled hover tooltips ──────────────────
 // Reuses existing `title` attributes: shows a styled tooltip near the element
