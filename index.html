@@ -10,7 +10,7 @@
 :root{
   --bg:#0b0b16;--panel:#111120;--panel2:#161628;--card:#1b1b30;--card2:#20203a;--hover:#252545;
   --fs:13px; /* base font size — controlled by A-/A+ buttons */
-  --slot-sz:38px;     /* primary slot diameter */
+  --slot-sz:46px;     /* primary slot diameter */
   --slot-sub:26px;    /* sub slot diameter */
   --prow-h:42px;      /* player row height */
   --pav-sz:28px;      /* player avatar in list */
@@ -78,8 +78,52 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 /* PITCH SCROLL */
 .pscroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:6px 4px 0;min-height:0}
 .pitch-outer{width:100%;flex-shrink:0}
-.pitch{width:100%;aspect-ratio:68/104;background:#2a5a2a;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
-.pitch::before{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0,transparent calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7))}
+.pitch{width:100%;aspect-ratio:68/104;background:#376b37;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
+/* Feine Rasen-Körnung (Noise) — optional, per .grass-noise umschaltbar.
+   Eigene Ebene über der Rasenfarbe, unter Mustern/Spielern. */
+.pitch.grass-noise>.grass-tex{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;z-index:0;opacity:.5;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:140px 140px}
+/* Rasenmuster (mowing patterns) — applied via .pat-* on .pitch::before.
+   Streifen wechseln zwischen einer helleren und einer dunkleren Bande,
+   damit sie wie echte gemähte Rasenstreifen sichtbar sind. */
+.pitch::before{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;background:none}
+/* Streifen horizontal (default) */
+.pitch.pat-stripes::before{background:repeating-linear-gradient(0deg,
+  rgba(255,255,255,.09) 0, rgba(255,255,255,.09) calc(100%/7),
+  rgba(0,0,0,.11) calc(100%/7), rgba(0,0,0,.11) calc(200%/7))}
+/* Streifen vertikal */
+.pitch.pat-vstripes::before{background:repeating-linear-gradient(90deg,
+  rgba(255,255,255,.09) 0, rgba(255,255,255,.09) calc(100%/9),
+  rgba(0,0,0,.11) calc(100%/9), rgba(0,0,0,.11) calc(200%/9))}
+/* Karo / Schachbrett — zwei überlagerte Streifensätze ergeben Karo */
+.pitch.pat-checker::before{background:
+  repeating-linear-gradient(0deg, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) calc(100%/7), rgba(0,0,0,.09) calc(100%/7), rgba(0,0,0,.09) calc(200%/7)),
+  repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) calc(100%/9), rgba(0,0,0,.09) calc(100%/9), rgba(0,0,0,.09) calc(200%/9))}
+/* Diagonal */
+.pitch.pat-diag::before{background:repeating-linear-gradient(45deg,
+  rgba(255,255,255,.08) 0, rgba(255,255,255,.08) 34px,
+  rgba(0,0,0,.1) 34px, rgba(0,0,0,.1) 68px)}
+/* Kreise / konzentrisch */
+.pitch.pat-circles::before{background:repeating-radial-gradient(circle at 50% 50%,
+  rgba(255,255,255,.07) 0, rgba(255,255,255,.07) 32px,
+  rgba(0,0,0,.1) 32px, rgba(0,0,0,.1) 64px)}
+/* Kein Muster */
+.pitch.pat-none::before{background:none}
+/* 3D-Rasen — weiche Verlaufsstreifen + Beleuchtung/Vignette für Tiefe */
+.pitch.pat-3d::before{background:
+  repeating-linear-gradient(0deg,
+    rgba(255,255,255,.10) 0,
+    rgba(255,255,255,.02) calc(100%/14),
+    rgba(0,0,0,.02) calc(100%/14),
+    rgba(0,0,0,.14) calc(200%/14),
+    rgba(0,0,0,.02) calc(300%/14),
+    rgba(255,255,255,.02) calc(300%/14),
+    rgba(255,255,255,.10) calc(400%/14))}
+.pitch.pat-3d::after{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;z-index:1;background:
+  radial-gradient(ellipse 80% 60% at 50% 30%, rgba(255,255,255,.10), transparent 60%),
+  radial-gradient(ellipse 120% 90% at 50% 100%, rgba(0,0,0,.28), transparent 55%);
+  mix-blend-mode:soft-light}
 .pm{position:absolute;background:transparent;border:2.5px solid rgba(255,255,255,.75);pointer-events:none;box-shadow:0 0 3px rgba(0,0,0,.5)}
 .pm-hl{top:50%;left:3%;width:94%;height:0;border:none;border-top:2.5px solid rgba(255,255,255,.75);box-shadow:0 0 3px rgba(0,0,0,.5)}
 .pm-cc{top:50%;left:50%;transform:translate(-50%,-50%);width:18%;aspect-ratio:1;border-radius:50%}
@@ -94,7 +138,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 /* POSITION GROUP */
 .pgrp{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0;z-index:10}
 .pgrp:has(.pgrp-lbl:hover){z-index:500}
-.pgrp-lbl{font-family:var(--ff);font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;background:rgba(0,0,0,.88);color:#fff;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-bottom:3px;cursor:grab;user-select:none;box-shadow:0 2px 6px rgba(0,0,0,.5);display:flex;align-items:center;gap:4px}
+.pgrp-lbl{font-family:var(--ff);font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;background:var(--pos-lbl-bg,rgba(30,34,54,.95));color:#fff;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-bottom:3px;cursor:grab;user-select:none;border:1px solid rgba(255,255,255,.18);box-shadow:0 2px 6px rgba(0,0,0,.5);display:flex;align-items:center;gap:4px}
 .pgrp-collapse{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.5);font-size:9px;padding:0 1px;line-height:1;flex-shrink:0;transition:transform .2s,color .15s}
 .pgrp-collapse:hover{color:#fff}
 .pgrp.collapsed .slot.sub,.pgrp.collapsed .slot-conn,.pgrp.collapsed .slot-add-btn{display:none!important}
@@ -121,8 +165,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .slot.sub .sini{font-size:10px}
 .snum-in{position:absolute;bottom:0;left:0;right:0;height:var(--snum-h);background:rgba(0,0,0,.72);font-family:var(--ff);font-size:var(--snum-sz);font-weight:800;text-align:center;line-height:var(--snum-h);color:rgba(255,255,255,.95);z-index:3;pointer-events:none}
 .slot.sub .snum-in{height:12px;font-size:8px;line-height:12px}
-.snwrap{position:relative;display:inline-flex;flex-direction:row;align-items:center;gap:3px;margin-top:2px;max-width:80px}
-.snlbl{font-family:var(--ff);font-size:var(--snlbl-sz);font-weight:700;color:rgba(230,230,255,.95);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68px;line-height:1.4;pointer-events:none}
+.snwrap{position:relative;display:inline-flex;flex-direction:row;align-items:center;gap:3px;margin-top:2px;max-width:140px}
+.snlbl{font-family:var(--ff);font-size:var(--snlbl-sz);font-weight:700;color:rgba(230,230,255,.95);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.4;pointer-events:none}
 .sntip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:rgba(4,4,18,.97);border:1px solid var(--brd2);border-radius:4px;font-family:var(--ff);font-size:11px;font-weight:700;color:var(--text);padding:3px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:300}
 .snwrap:hover .sntip{opacity:1}
 .slot-conn{width:1.5px;height:5px;background:rgba(255,255,255,.2);pointer-events:none;align-self:center}
@@ -331,7 +375,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
           <div class="csb-r"><span class="cslbl">Ring</span><label class="csw"><input type="color" value="#c0392b" oninput="setC('att',this.value)"></label></div>
         </div>
         <div class="csb-div"></div>
-        <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="rasenLbl">Rasen</span><label class="csw"><input type="color" value="#2a5a2a" id="pitchColorPicker" oninput="document.getElementById('pitch').style.background=this.value"></label></div>
+        <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="rasenLbl">Rasen</span><label class="csw"><input type="color" value="#376b37" id="pitchColorPicker" oninput="document.getElementById('pitch').style.background=this.value"></label></div>
+        <div class="csb-r" style="padding:0 4px;flex-direction:column;gap:2px;align-items:stretch"><span class="cslbl" id="patLbl" style="text-align:center">Muster</span><select id="patSelect" onchange="setPitchPattern(this.value)" style="width:44px;background:var(--card2);color:var(--text2);border:1px solid var(--brd2);border-radius:4px;font-family:var(--ff);font-size:8px;font-weight:700;padding:2px 1px;cursor:pointer;text-align:center"><option value="stripes">≡ H</option><option value="vstripes">||| V</option><option value="checker">▦ Karo</option><option value="diag">╱ Diag</option><option value="circles">◎ Kreis</option><option value="3d">⛰ 3D</option><option value="none">∅ Kein</option></select></div>
+        <div class="csb-r" style="padding:0 4px;justify-content:center"><label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:8px;font-weight:700;color:var(--text3);font-family:var(--ff)"><input type="checkbox" id="grassNoiseChk" checked onchange="setGrassNoise(this.checked)" style="cursor:pointer;width:11px;height:11px"><span id="noiseLbl">Textur</span></label></div>
+        <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="posLblLbl">Label</span><label class="csw"><input type="color" value="#1e2236" id="posLblColorPicker" oninput="setPosLblColor(this.value)"></label></div>
         <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="bgLbl">Hinter.</span><label class="csw"><input type="color" value="#0b0b16" oninput="setBg(this.value)"></label></div>
         <div class="csb-div"></div>
         <button class="cs-btn" style="background:var(--adim);border:1px solid var(--abrd);color:var(--acc2)" onclick="quickSave()" title="Speichern">💾</button>
@@ -341,7 +388,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
       </div>
       <div class="pscroll" id="pscroll" ondragover="event.preventDefault()" ondrop="dropUnassign()">
         <div class="pitch-outer">
-          <div class="pitch" id="pitch">
+          <div class="pitch pat-stripes grass-noise" id="pitch">
             <div class="pm pm-hl"></div><div class="pm pm-cc"></div>
             <div class="pm pm-pt"></div><div class="pm pm-pb"></div>
             <div class="pm pm-gt"></div><div class="pm pm-gb"></div>
@@ -679,6 +726,9 @@ const LANGS={
     ageSuffix:'J',
     savedToast:'gespeichert',loadedToast:'geladen',loadConfirmSuffix:'laden?',
     clubPlaceholder:'Dein Club / Save',
+    posLblColorLbl:'Label',
+    patLbl:'Muster',
+    noiseLbl:'Textur',
     fitColsBtn:'↔ Spalten',fitColsTip:'Spaltenbreiten optimal an Inhalt anpassen',
     clearFieldLbl:'✕ leeren',
     // Tooltips (topbar)
@@ -824,6 +874,9 @@ const LANGS={
     ageSuffix:'y',
     savedToast:'saved',loadedToast:'loaded',loadConfirmSuffix:'load?',
     clubPlaceholder:'Your club / save',
+    posLblColorLbl:'Label',
+    patLbl:'Pattern',
+    noiseLbl:'Texture',
     fitColsBtn:'↔ Columns',fitColsTip:'Fit column widths to content',
     clearFieldLbl:'✕ clear',
     tipFontSmaller:'Smaller font',
@@ -964,6 +1017,9 @@ const LANGS={
     ageSuffix:'a',
     savedToast:'guardado',loadedToast:'cargado',loadConfirmSuffix:'¿cargar?',
     clubPlaceholder:'Tu club / guardar',
+    posLblColorLbl:'Etiqueta',
+    patLbl:'Patrón',
+    noiseLbl:'Textura',
     fitColsBtn:'↔ Columnas',fitColsTip:'Ajustar ancho de columnas al contenido',
     clearFieldLbl:'✕ vaciar',
     tipFontSmaller:'Fuente más pequeña',
@@ -1040,6 +1096,9 @@ function setLang(l){
   document.getElementById('allowDupLbl').textContent=t('mehrfach');
   document.getElementById('csb-title-el').textContent=t('farbe');
   document.getElementById('rasenLbl').textContent=t('rasen');
+  const pll=document.getElementById('posLblLbl'); if(pll) pll.textContent=t('posLblColorLbl');
+  const patL=document.getElementById('patLbl'); if(patL) patL.textContent=t('patLbl');
+  const nl=document.getElementById('noiseLbl'); if(nl) nl.textContent=t('noiseLbl');
   document.getElementById('bgLbl').textContent=t('hintergrund');
   const noteEl=document.querySelector('#tacticNote'); if(noteEl) noteEl.placeholder=t('noteLabel');
   COLS=mkCOLS();
@@ -1293,9 +1352,29 @@ function setBg(v){
   root.style.setProperty('--hover',    mk(r+26,g+26,b+53));
   document.body.style.background=v;
 }
+// Position-label background color (the "ST ▸" boxes on the pitch)
+function setPosLblColor(v){
+  document.documentElement.style.setProperty('--pos-lbl-bg', v);
+  try{ localStorage.setItem('fm26_poslbl', v); }catch(e){}
+}
+// Pitch mowing pattern
+const PITCH_PATS=['stripes','vstripes','checker','diag','circles','3d','none'];
+function setPitchPattern(p){
+  const pitch=document.getElementById('pitch');
+  if(!pitch) return;
+  PITCH_PATS.forEach(x=>pitch.classList.remove('pat-'+x));
+  pitch.classList.add('pat-'+p);
+  try{ localStorage.setItem('fm26_pitchpat', p); }catch(e){}
+}
+// Grass noise texture on/off
+function setGrassNoise(on){
+  const pitch=document.getElementById('pitch');
+  if(pitch) pitch.classList.toggle('grass-noise', !!on);
+  try{ localStorage.setItem('fm26_grassnoise', on?'1':'0'); }catch(e){}
+}
 let _fontSize=13;
 function adjFont(delta){
-  _fontSize=Math.max(10,Math.min(18,_fontSize+delta));
+  _fontSize=Math.max(10,Math.min(24,_fontSize+delta));
   applyFontScale(_fontSize);
   localStorage.setItem('fm26_fs',_fontSize);
   // Re-render list immediately, pitch after CSS vars settle
@@ -1306,7 +1385,7 @@ function applyFontScale(fs){
   const r=document.documentElement;
   const s=fs/13; // scale factor relative to base 13px
   r.style.setProperty('--fs',       fs+'px');
-  r.style.setProperty('--slot-sz',  Math.round(38*s)+'px');
+  r.style.setProperty('--slot-sz',  Math.round(46*s)+'px');
   r.style.setProperty('--slot-sub', Math.round(26*s)+'px');
   r.style.setProperty('--prow-h',   Math.round(42*s)+'px');
   r.style.setProperty('--pav-sz',   Math.round(28*s)+'px');
@@ -1318,6 +1397,14 @@ function applyFontScale(fs){
 (function(){
   const s=localStorage.getItem('fm26_fs');
   if(s){ _fontSize=parseInt(s)||13; applyFontScale(_fontSize); }
+  try{
+    const pc=localStorage.getItem('fm26_poslbl');
+    if(pc){ document.documentElement.style.setProperty('--pos-lbl-bg', pc); const el=document.getElementById('posLblColorPicker'); if(el) el.value=pc; }
+    const pat=localStorage.getItem('fm26_pitchpat');
+    if(pat){ setPitchPattern(pat); const ps=document.getElementById('patSelect'); if(ps) ps.value=pat; }
+    const gn=localStorage.getItem('fm26_grassnoise');
+    if(gn!==null){ const on=gn==='1'; setGrassNoise(on); const gc=document.getElementById('grassNoiseChk'); if(gc) gc.checked=on; }
+  }catch(e){}
 })();
 function allPids(){ const s=new Set(); Object.values(lineup).forEach(a=>(a||[]).forEach(id=>{if(id)s.add(id);})); return s; }
 function primPids(){ const s=new Set(); Object.values(lineup).forEach(a=>{if(a&&a[0])s.add(a[0]);}); return s; }
@@ -1538,7 +1625,7 @@ function faceHTML(fmId,c,initials){
 // ══════════════════════════════════
 function renderPitch(){
   const pitch=document.getElementById('pitch');
-  pitch.innerHTML=`<div class="pm pm-hl"></div><div class="pm pm-cc"></div>
+  pitch.innerHTML=`<div class="grass-tex"></div><div class="pm pm-hl"></div><div class="pm pm-cc"></div>
     <div class="pm pm-pt"></div><div class="pm pm-pb"></div>
     <div class="pm pm-gt"></div><div class="pm pm-gb"></div><div class="pm-spot"></div>`;
 
@@ -2128,7 +2215,7 @@ function rowHTML(p,prim,assigned,selSlot){
         case 'num': return `<div class="pc c-num">${p.number||'—'}</div>`;
         case 'name': return `<div class="pc c-name"><div class="pav" style="background:${c}22;color:${c}">${fHtml}</div><div style="min-width:0;flex:1"><div class="pnfull">${flagHtml(p.nation,'14px',true)}${p.name}${inP?`<span style="font-size:8px;background:var(--adim);color:var(--acc2);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterStarter').slice(0,4)}</span>`:''}${inS?`<span style="font-size:8px;background:rgba(91,106,245,.1);color:rgba(91,106,245,.6);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterSub').slice(0,3)}</span>`:''}</div><div class="psub" style="font-size:10px;color:var(--text3)">${p.position}${p.age?' · '+p.age+t('ageSuffix'):''}</div></div></div>`;
         case 'age': return `<div class="pc c-age">${p.age||'—'}</div>`;
-        case 'hier': return `<div class="pc c-hier"><span class="hbdg" style="background:${h.bg};color:${h.c};cursor:pointer" title="${t('tipHierChange')}" onclick="event.stopPropagation();cycleHier('${p.id}')">${h.l}</span></div>`;
+        case 'hier': return `<div class="pc c-hier" style="gap:2px"><span class="hbdg" style="background:${h.bg};color:${h.c};cursor:pointer" title="${t('tipHierChange')}" onclick="event.stopPropagation();cycleHier('${p.id}')">${h.l}</span><span class="hier-caret" title="${t('tipHierChange')}" onclick="event.stopPropagation();openHierMenu(event,'${p.id}')" style="cursor:pointer;color:var(--text3);font-size:9px;padding:0 2px;line-height:1;user-select:none">▾</span></div>`;
         case 'club': return `<div class="pc c-club" title="${p.club||''}" style="font-size:11px">${p.club||'—'}</div>`;
         case 'note': return `<div class="pc c-note">
   ${p.note?`<button class="ibtn" onclick="event.stopPropagation();openNote('${p.id}')" onmouseenter="showNoteTooltip(event,'${p.id}')" onmouseleave="hideNoteTooltip()" style="color:var(--gold2);font-size:13px" title="">📝</button>`:`<button class="ibtn" onclick="event.stopPropagation();openNote('${p.id}')" style="opacity:.2;font-size:13px" title="">📝</button>`}
@@ -2161,6 +2248,41 @@ function cycleHier(id){
   const idx=hKeys.indexOf(p.hier||'rotation');
   p.hier=hKeys[(idx+1)%hKeys.length];
   renderList(); updateAnalysis();
+}
+
+// Dropdown menu to pick hierarchy directly (alternative to cycling)
+function openHierMenu(ev, id){
+  ev.stopPropagation();
+  document.getElementById('hierMenu')?.remove();
+  const p=players.find(x=>x.id===id); if(!p) return;
+  const hKeys=['key','influencer','first','rotation','fringe','youth','new'];
+  const menu=document.createElement('div');
+  menu.id='hierMenu';
+  menu.style.cssText='position:fixed;z-index:99999;background:var(--panel2);border:1px solid var(--brd2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.6);padding:4px;min-width:170px;font-family:var(--fb);font-size:12px';
+  hKeys.forEach(k=>{
+    const h=HIER[k];
+    const row=document.createElement('div');
+    const active=(p.hier||'rotation')===k;
+    row.style.cssText=`display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;cursor:pointer;transition:background .12s;${active?'background:var(--hover)':''}`;
+    row.innerHTML=`<span style="background:${h.bg};color:${h.c};font-weight:700;font-size:10px;padding:1px 6px;border-radius:3px;font-family:var(--ff)">${h.l}</span>`;
+    row.onmouseover=()=>{ if(!active) row.style.background='var(--hover)'; };
+    row.onmouseout=()=>{ if(!active) row.style.background=''; };
+    row.onclick=(e)=>{ e.stopPropagation(); p.hier=k; document.getElementById('hierMenu')?.remove(); renderList(); updateAnalysis(); };
+    menu.appendChild(row);
+  });
+  document.body.appendChild(menu);
+  // Position near the caret, kept within viewport
+  const r=ev.target.getBoundingClientRect();
+  const mw=menu.offsetWidth, mh=menu.offsetHeight;
+  let x=r.left, y=r.bottom+4;
+  if(x+mw>window.innerWidth-8) x=window.innerWidth-mw-8;
+  if(y+mh>window.innerHeight-8) y=r.top-mh-4;
+  menu.style.left=Math.max(8,x)+'px';
+  menu.style.top=Math.max(8,y)+'px';
+  // Close on outside click / scroll
+  const close=(e)=>{ if(!menu.contains(e.target)){ menu.remove(); document.removeEventListener('mousedown',close); window.removeEventListener('scroll',closeS,true); } };
+  const closeS=()=>{ menu.remove(); document.removeEventListener('mousedown',close); window.removeEventListener('scroll',closeS,true); };
+  setTimeout(()=>{ document.addEventListener('mousedown',close); window.addEventListener('scroll',closeS,true); },0);
 }
 
 function selectP(id){
