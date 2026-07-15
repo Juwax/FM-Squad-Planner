@@ -80,13 +80,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .pitch-outer{width:100%;flex-shrink:0}
 .pitch{width:100%;aspect-ratio:68/132;background:#2a5a2a;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
 .pitch::before{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0,transparent calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7))}
-.pm{position:absolute;background:transparent;border:1.5px solid rgba(255,255,255,.13);pointer-events:none}
-.pm-hl{top:50%;left:5%;width:90%;height:0;border:none;border-top:1.5px solid rgba(255,255,255,.13)}
+.pm{position:absolute;background:transparent;border:2px solid rgba(255,255,255,.5);pointer-events:none;box-shadow:0 0 2px rgba(0,0,0,.4)}
+.pm-hl{top:50%;left:4%;width:92%;height:0;border:none;border-top:2px solid rgba(255,255,255,.5);box-shadow:0 1px 2px rgba(0,0,0,.35)}
 .pm-cc{top:50%;left:50%;transform:translate(-50%,-50%);width:18%;aspect-ratio:1;border-radius:50%}
 .pm-pt{top:0;left:20%;width:60%;height:14%;border-top:none}
 .pm-pb{bottom:0;left:20%;width:60%;height:14%;border-bottom:none}
 .pm-gt{top:0;left:35%;width:30%;height:5%;border-top:none}
 .pm-gb{bottom:0;left:35%;width:30%;height:5%;border-bottom:none}
+.pm-spot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);pointer-events:none}
+/* Global styled hover tooltip, anchored to <body> so it never gets clipped */
+#hoverTip{position:fixed;background:rgba(4,4,18,.98);border:1px solid var(--brd2);border-radius:6px;color:var(--text);font-family:var(--fb);font-size:11px;font-weight:600;padding:5px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:99999;box-shadow:0 4px 14px rgba(0,0,0,.55);max-width:260px}
+#hoverTip.show{opacity:1}
 /* POSITION GROUP */
 .pgrp{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0;z-index:10}
 .pgrp:has(.pgrp-lbl:hover){z-index:500}
@@ -1529,7 +1533,7 @@ function renderPitch(){
   const pitch=document.getElementById('pitch');
   pitch.innerHTML=`<div class="pm pm-hl"></div><div class="pm pm-cc"></div>
     <div class="pm pm-pt"></div><div class="pm pm-pb"></div>
-    <div class="pm pm-gt"></div><div class="pm pm-gb"></div>`;
+    <div class="pm pm-gt"></div><div class="pm pm-gb"></div><div class="pm-spot"></div>`;
 
   const pH=pitch.getBoundingClientRect().height||500;
   // Read actual sizes from CSS vars so scaling works
@@ -3472,6 +3476,63 @@ initBVB();
 renderAll();
 // Apply saved lang on startup
 setLang(lang);
+
+// ── Global styled hover tooltips ──────────────────
+// Reuses existing `title` attributes: shows a styled tooltip near the element
+// and temporarily removes the native `title` so both don't appear.
+(function(){
+  const tipEl=document.createElement('div');
+  tipEl.id='hoverTip';
+  document.body.appendChild(tipEl);
+  let cur=null;
+
+  function place(el){
+    const r=el.getBoundingClientRect();
+    tipEl.style.left='0px'; tipEl.style.top='0px';
+    tipEl.classList.add('show');
+    const tw=tipEl.offsetWidth, th=tipEl.offsetHeight;
+    const gap=8, pad=6;
+    // Prefer right side; if it would overflow the viewport, place below/left.
+    let x=r.right+gap, y=r.top+r.height/2-th/2;
+    if(x+tw>window.innerWidth-pad){
+      // try left
+      const xl=r.left-gap-tw;
+      if(xl>=pad){ x=xl; }
+      else { // place below, centered
+        x=Math.min(Math.max(pad, r.left+r.width/2-tw/2), window.innerWidth-tw-pad);
+        y=r.bottom+gap;
+      }
+    }
+    y=Math.min(Math.max(pad,y), window.innerHeight-th-pad);
+    tipEl.style.left=x+'px';
+    tipEl.style.top=y+'px';
+  }
+
+  document.addEventListener('mouseover',e=>{
+    const el=e.target.closest('[title]');
+    if(!el){ return; }
+    const txt=el.getAttribute('title');
+    if(!txt||!txt.trim()){ return; }
+    cur=el;
+    // stash & strip native title to avoid the default OS tooltip
+    el.setAttribute('data-tiptext',txt);
+    el.removeAttribute('title');
+    tipEl.textContent=txt;
+    place(el);
+  });
+  document.addEventListener('mouseout',e=>{
+    const el=e.target.closest('[data-tiptext]');
+    if(!el) return;
+    // restore native title
+    const txt=el.getAttribute('data-tiptext');
+    if(txt!=null){ el.setAttribute('title',txt); el.removeAttribute('data-tiptext'); }
+    if(cur===el) cur=null;
+    tipEl.classList.remove('show');
+  });
+  // Hide on scroll / click so it never gets stuck
+  window.addEventListener('scroll',()=>{ tipEl.classList.remove('show'); },true);
+  document.addEventListener('mousedown',()=>{ tipEl.classList.remove('show'); });
+})();
 </script>
 <div id="noteTooltip" class="note-tooltip"><div class="nt-head" id="ntHead"></div><div id="ntBody"></div></div>
 <div id="dragGhost"><div class="dg-circle"><span id="dgIni"></span></div><div class="dg-name" id="dgName"></div></div>
