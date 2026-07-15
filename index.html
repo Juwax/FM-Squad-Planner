@@ -3229,26 +3229,57 @@ async function buildTVCanvas(includeSubs=false){
   // ── Pitch background ─────────────────────────────
   const PT=HDR+14, PH=H-PT-14;
   const PL=24, PR=PW-24;
-  const pitchGrad=ctx.createLinearGradient(PL,PT,PL,PT+PH);
-  pitchGrad.addColorStop(0,'rgba(0,40,30,0.5)');
-  pitchGrad.addColorStop(0.5,'rgba(0,55,40,0.4)');
-  pitchGrad.addColorStop(1,'rgba(0,40,30,0.5)');
-  ctx.fillStyle=pitchGrad; rr(ctx,PL,PT,PR-PL,PH,16); ctx.fill();
-  ctx.strokeStyle='rgba(0,200,180,0.15)'; ctx.lineWidth=1.5;
-  rr(ctx,PL,PT,PR-PL,PH,16); ctx.stroke();
+  const PWID=PR-PL;
+  // Use the user's actual pitch colour (falls back to default grass green)
+  const pitchEl=document.getElementById('pitch');
+  let grass = (pitchEl && pitchEl.style.background) ? pitchEl.style.background : '#376b37';
+  if(!/^#|rgb/.test(grass)) grass='#376b37';
+  // helper: parse to rgb
+  function toRGB(c){
+    if(c[0]==='#'){ const h=c.slice(1); const n=h.length===3?h.split('').map(x=>x+x).join(''):h; return [parseInt(n.slice(0,2),16),parseInt(n.slice(2,4),16),parseInt(n.slice(4,6),16)]; }
+    const m=c.match(/\d+/g); return m?[+m[0],+m[1],+m[2]]:[55,107,55];
+  }
+  const [gr,gg,gb]=toRGB(grass);
+  const clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
+  // base grass with soft vertical lighting
+  ctx.save();
+  rr(ctx,PL,PT,PWID,PH,16); ctx.clip();
+  const baseGrad=ctx.createLinearGradient(PL,PT,PL,PT+PH);
+  baseGrad.addColorStop(0, `rgb(${clamp(gr*1.12)},${clamp(gg*1.12)},${clamp(gb*1.12)})`);
+  baseGrad.addColorStop(0.5, grass);
+  baseGrad.addColorStop(1, `rgb(${clamp(gr*0.82)},${clamp(gg*0.82)},${clamp(gb*0.82)})`);
+  ctx.fillStyle=baseGrad; ctx.fillRect(PL,PT,PWID,PH);
+  // mowing stripes (horizontal bands, alternating lighter/darker)
+  const bands=9;
+  for(let i=0;i<bands;i++){
+    const y=PT+ (PH/bands)*i;
+    ctx.fillStyle = i%2===0 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
+    ctx.fillRect(PL, y, PWID, PH/bands);
+  }
+  // soft lighting overlay (top highlight, bottom vignette)
+  const lg=ctx.createRadialGradient(PL+PWID/2,PT+PH*0.28,PH*0.1, PL+PWID/2,PT+PH*0.5,PH*0.9);
+  lg.addColorStop(0,'rgba(255,255,255,0.08)'); lg.addColorStop(1,'rgba(0,0,0,0.22)');
+  ctx.fillStyle=lg; ctx.fillRect(PL,PT,PWID,PH);
+  ctx.restore();
+  // border
+  ctx.strokeStyle='rgba(255,255,255,0.14)'; ctx.lineWidth=2;
+  rr(ctx,PL,PT,PWID,PH,16); ctx.stroke();
 
-  // Pitch markings
+  // Pitch markings (brighter, matching the app)
   const ML=PL+40, MR=PR-40, MT=PT+36, MB=PT+PH-36;
   const IW=MR-ML, IH=MB-MT;
-  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5;
-  ctx.shadowColor='rgba(255,255,255,0.1)'; ctx.shadowBlur=4;
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2.5;
+  ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=3;
   ctx.strokeRect(ML,MT,IW,IH);
   ctx.beginPath(); ctx.moveTo(ML,MT+IH/2); ctx.lineTo(MR,MT+IH/2); ctx.stroke();
   // Centre circle
   ctx.beginPath(); ctx.arc(ML+IW/2,MT+IH/2,IH*0.09,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(255,255,255,0.6)';
   ctx.beginPath(); ctx.arc(ML+IW/2,MT+IH/2,4,0,Math.PI*2); ctx.fill();
   // Penalty areas
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2.5;
+  ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=3;
   const paW=IW*0.44, paH=IH*0.16;
   ctx.strokeRect(ML+(IW-paW)/2,MT,paW,paH);
   ctx.strokeRect(ML+(IW-paW)/2,MB-paH,paW,paH);
@@ -3256,7 +3287,7 @@ async function buildTVCanvas(includeSubs=false){
   ctx.strokeRect(ML+(IW-gaW)/2,MT,gaW,gaH);
   ctx.strokeRect(ML+(IW-gaW)/2,MB-gaH,gaW,gaH);
   // Penalty spots
-  ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.fillStyle='rgba(255,255,255,0.6)';
   ctx.beginPath(); ctx.arc(ML+IW/2,MT+IH*0.12,3,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(ML+IW/2,MB-IH*0.12,3,0,Math.PI*2); ctx.fill();
   ctx.shadowBlur=0;
@@ -3360,16 +3391,20 @@ async function buildTVCanvas(includeSubs=false){
       ctx.fillText(String(p.number),bx,by);
     }
 
-    // Position label — above circle (pill)
+    // Position label — above circle (pill, matching app style)
     const posLbl=slot.l;
-    ctx.font=`bold 11px "Arial Narrow",Arial,sans-serif`;
-    const pw=ctx.measureText(posLbl).width+16;
-    const px=cx-pw/2, py=cy-R-26;
-    ctx.fillStyle=catC+'dd';
-    rr(ctx,px,py,pw,18,4); ctx.fill();
-    ctx.fillStyle='#000a'; rr(ctx,px+1,py+1,pw-2,16,3); ctx.fill();
+    ctx.font=`bold 12px "Arial Narrow",Arial,sans-serif`;
+    const pw=ctx.measureText(posLbl).width+18;
+    const px=cx-pw/2, py=cy-R-28;
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=6;
+    ctx.fillStyle='rgba(20,24,40,0.95)';
+    rr(ctx,px,py,pw,19,5); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle=catC+'aa'; ctx.lineWidth=1.5;
+    rr(ctx,px,py,pw,19,5); ctx.stroke();
     ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(posLbl,cx,py+9);
+    ctx.fillText(posLbl,cx,py+10);
 
     // Name pill — below circle
     const lastName=p.name.trim().split(' ').pop();
