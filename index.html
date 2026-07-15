@@ -76,8 +76,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .lang-btn.on{background:var(--adim)!important;border-bottom:2px solid var(--acc2)!important;border-radius:0}
 .cs-btn{width:44px;padding:5px 0;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;border:none;transition:all .15s}
 /* PITCH SCROLL */
-.pscroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:6px 4px 0;min-height:0}
-.pitch-outer{width:100%;flex-shrink:0}
+.pscroll{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:6px 4px;min-height:0}
+.pitch-outer{flex-shrink:0;max-width:100%}
 .pitch{width:100%;aspect-ratio:68/104;background:#376b37;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
 /* Feine Rasen-Körnung (Noise) — optional, per .grass-noise umschaltbar.
    Eigene Ebene über der Rasenfarbe, unter Mustern/Spielern. */
@@ -90,24 +90,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .pitch::before{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;background:none}
 /* Streifen horizontal (default) */
 .pitch.pat-stripes::before{background:repeating-linear-gradient(0deg,
-  rgba(255,255,255,.09) 0, rgba(255,255,255,.09) calc(100%/7),
-  rgba(0,0,0,.11) calc(100%/7), rgba(0,0,0,.11) calc(200%/7))}
+  rgba(255,255,255,.05) 0, rgba(255,255,255,.05) calc(100%/7),
+  rgba(0,0,0,.06) calc(100%/7), rgba(0,0,0,.06) calc(200%/7))}
 /* Streifen vertikal */
 .pitch.pat-vstripes::before{background:repeating-linear-gradient(90deg,
-  rgba(255,255,255,.09) 0, rgba(255,255,255,.09) calc(100%/9),
-  rgba(0,0,0,.11) calc(100%/9), rgba(0,0,0,.11) calc(200%/9))}
+  rgba(255,255,255,.05) 0, rgba(255,255,255,.05) calc(100%/9),
+  rgba(0,0,0,.06) calc(100%/9), rgba(0,0,0,.06) calc(200%/9))}
 /* Karo / Schachbrett — zwei überlagerte Streifensätze ergeben Karo */
 .pitch.pat-checker::before{background:
-  repeating-linear-gradient(0deg, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) calc(100%/7), rgba(0,0,0,.09) calc(100%/7), rgba(0,0,0,.09) calc(200%/7)),
-  repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0, rgba(255,255,255,.07) calc(100%/9), rgba(0,0,0,.09) calc(100%/9), rgba(0,0,0,.09) calc(200%/9))}
+  repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) calc(100%/7), rgba(0,0,0,.05) calc(100%/7), rgba(0,0,0,.05) calc(200%/7)),
+  repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) calc(100%/9), rgba(0,0,0,.05) calc(100%/9), rgba(0,0,0,.05) calc(200%/9))}
 /* Diagonal */
 .pitch.pat-diag::before{background:repeating-linear-gradient(45deg,
-  rgba(255,255,255,.08) 0, rgba(255,255,255,.08) 34px,
-  rgba(0,0,0,.1) 34px, rgba(0,0,0,.1) 68px)}
+  rgba(255,255,255,.045) 0, rgba(255,255,255,.045) 34px,
+  rgba(0,0,0,.055) 34px, rgba(0,0,0,.055) 68px)}
 /* Kreise / konzentrisch */
 .pitch.pat-circles::before{background:repeating-radial-gradient(circle at 50% 50%,
-  rgba(255,255,255,.07) 0, rgba(255,255,255,.07) 32px,
-  rgba(0,0,0,.1) 32px, rgba(0,0,0,.1) 64px)}
+  rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 32px,
+  rgba(0,0,0,.055) 32px, rgba(0,0,0,.055) 64px)}
 /* Kein Muster */
 .pitch.pat-none::before{background:none}
 /* 3D-Rasen — weiche Verlaufsstreifen + Beleuchtung/Vignette für Tiefe */
@@ -124,8 +124,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
   radial-gradient(ellipse 80% 60% at 50% 30%, rgba(255,255,255,.10), transparent 60%),
   radial-gradient(ellipse 120% 90% at 50% 100%, rgba(0,0,0,.28), transparent 55%);
   mix-blend-mode:soft-light}
-.pm{position:absolute;background:transparent;border:2.5px solid rgba(255,255,255,.75);pointer-events:none;box-shadow:0 0 3px rgba(0,0,0,.5)}
-.pm-hl{top:50%;left:3%;width:94%;height:0;border:none;border-top:2.5px solid rgba(255,255,255,.75);box-shadow:0 0 3px rgba(0,0,0,.5)}
+.pm{position:absolute;background:transparent;border:2px solid rgba(255,255,255,.55);pointer-events:none;box-shadow:0 0 2px rgba(0,0,0,.35)}
+.pm-hl{top:50%;left:3%;width:94%;height:0;border:none;border-top:2px solid rgba(255,255,255,.55);box-shadow:0 0 2px rgba(0,0,0,.3)}
 .pm-cc{top:50%;left:50%;transform:translate(-50%,-50%);width:18%;aspect-ratio:1;border-radius:50%}
 .pm-pt{top:0;left:20%;width:60%;height:14%;border-top:none}
 .pm-pb{bottom:0;left:20%;width:60%;height:14%;border-bottom:none}
@@ -1623,7 +1623,26 @@ function faceHTML(fmId,c,initials){
 // ══════════════════════════════════
 // PITCH RENDER
 // ══════════════════════════════════
+// Size the pitch so it always fits fully in the visible area (no cutoff):
+// height is capped by the scroll area; width follows the 68:104 ratio.
+const PITCH_RATIO=68/104; // width/height
+function fitPitch(){
+  const sc=document.querySelector('.pscroll');
+  const outer=document.querySelector('.pitch-outer');
+  if(!sc||!outer) return;
+  const cs=getComputedStyle(sc);
+  const padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
+  const padY=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+  const availW=sc.clientWidth - padX;
+  const availH=sc.clientHeight - padY;
+  if(availW<=0||availH<=0) return;
+  // width limited by both available width and (height * ratio)
+  const w=Math.min(availW, availH*PITCH_RATIO);
+  outer.style.width=Math.floor(w)+'px';
+}
+
 function renderPitch(){
+  fitPitch();
   const pitch=document.getElementById('pitch');
   pitch.innerHTML=`<div class="grass-tex"></div><div class="pm pm-hl"></div><div class="pm pm-cc"></div>
     <div class="pm pm-pt"></div><div class="pm pm-pb"></div>
