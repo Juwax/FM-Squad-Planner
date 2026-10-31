@@ -2514,7 +2514,7 @@ Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
       headers:fetchHeaders,
       body:JSON.stringify({
         model:'claude-haiku-5-5',
-        max_tokens:2000,
+        max_tokens:8000,
         messages:[{
           role:'user',
           content:[
@@ -2533,17 +2533,27 @@ Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
     let text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
     // Strip markdown code fences if the model wrapped the JSON
     text=text.replace(/```(?:json)?/gi,'').trim();
-    // Take the whole array: first '[' to the matching last ']'
-    const start=text.indexOf('['), end=text.lastIndexOf(']');
-    if(start<0||end<=start){
+    const start=text.indexOf('[');
+    if(start<0){
       console.warn('[Import] KI-Antwort:',text);
       throw new Error('Antwort ohne Spielerliste'+(text?': "'+text.slice(0,120)+'…"':''));
     }
+    let jsonStr=text.slice(start);
+    const end=jsonStr.lastIndexOf(']');
+    if(end>0) jsonStr=jsonStr.slice(0,end+1);
+    _importParsed=null;
     try{
-      _importParsed=JSON.parse(text.slice(start,end+1));
+      _importParsed=JSON.parse(jsonStr);
     }catch(parseErr){
-      console.warn('[Import] JSON-Fehler, Rohtext:',text);
-      throw new Error('Antwort nicht lesbar (JSON-Fehler)');
+      // Response was likely truncated — rescue by cutting after the last complete object
+      const lastObj=jsonStr.lastIndexOf('}');
+      if(lastObj>0){
+        try{ _importParsed=JSON.parse(jsonStr.slice(0,lastObj+1)+']'); }catch(_){}
+      }
+      if(!_importParsed){
+        console.warn('[Import] JSON-Fehler, Rohtext:',text);
+        throw new Error('Antwort nicht lesbar (evtl. zu viele Spieler)');
+      }
     }
     if(!Array.isArray(_importParsed)||!_importParsed.length) throw new Error('Keine Spieler im Screenshot gefunden');
 
