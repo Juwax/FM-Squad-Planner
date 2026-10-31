@@ -2530,11 +2530,22 @@ Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
       throw new Error('HTTP '+resp.status+(detail?' — '+detail.slice(0,180):''));
     }
     const data=await resp.json();
-    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    const m=text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
-    if(!m) throw new Error('Keine Spieler erkannt');
-    _importParsed=JSON.parse(m[0]);
-    if(!_importParsed.length) throw new Error('Keine Spieler im Screenshot gefunden');
+    let text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    // Strip markdown code fences if the model wrapped the JSON
+    text=text.replace(/```(?:json)?/gi,'').trim();
+    // Take the whole array: first '[' to the matching last ']'
+    const start=text.indexOf('['), end=text.lastIndexOf(']');
+    if(start<0||end<=start){
+      console.warn('[Import] KI-Antwort:',text);
+      throw new Error('Antwort ohne Spielerliste'+(text?': "'+text.slice(0,120)+'…"':''));
+    }
+    try{
+      _importParsed=JSON.parse(text.slice(start,end+1));
+    }catch(parseErr){
+      console.warn('[Import] JSON-Fehler, Rohtext:',text);
+      throw new Error('Antwort nicht lesbar (JSON-Fehler)');
+    }
+    if(!Array.isArray(_importParsed)||!_importParsed.length) throw new Error('Keine Spieler im Screenshot gefunden');
 
     status.style.color='var(--green2)';
     status.textContent='✓ '+_importParsed.length+' Spieler erkannt';
