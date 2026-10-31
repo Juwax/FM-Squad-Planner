@@ -10,8 +10,8 @@
 :root{
   --bg:#0b0b16;--panel:#111120;--panel2:#161628;--card:#1b1b30;--card2:#20203a;--hover:#252545;
   --fs:13px; /* base font size — controlled by A-/A+ buttons */
-  --slot-sz:52px;     /* primary slot diameter */
-  --slot-sub:24px;    /* sub slot diameter */
+  --slot-sz:38px;     /* primary slot diameter */
+  --slot-sub:26px;    /* sub slot diameter */
   --prow-h:42px;      /* player row height */
   --pav-sz:28px;      /* player avatar in list */
   --snlbl-sz:10px;    /* slot name label */
@@ -76,69 +76,20 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .lang-btn.on{background:var(--adim)!important;border-bottom:2px solid var(--acc2)!important;border-radius:0}
 .cs-btn{width:44px;padding:5px 0;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;border:none;transition:all .15s}
 /* PITCH SCROLL */
-.pscroll{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:6px 4px;min-height:0}
-.pitch-outer{flex-shrink:0;max-width:100%;max-height:100%}
-.pitch{width:100%;height:100%;background:#376b37;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
-/* Feine Rasen-Körnung (Noise) — optional, per .grass-noise umschaltbar.
-   Eigene Ebene über der Rasenfarbe, unter Mustern/Spielern. */
-.pitch.grass-noise>.grass-tex{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;z-index:0;opacity:.5;mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size:140px 140px}
-/* Rasenmuster (mowing patterns) — applied via .pat-* on .pitch::before.
-   Streifen wechseln zwischen einer helleren und einer dunkleren Bande,
-   damit sie wie echte gemähte Rasenstreifen sichtbar sind. */
-.pitch::before{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;background:none}
-/* Streifen horizontal (default) */
-.pitch.pat-stripes::before{background:repeating-linear-gradient(0deg,
-  rgba(255,255,255,.05) 0, rgba(255,255,255,.05) calc(100%/7),
-  rgba(0,0,0,.06) calc(100%/7), rgba(0,0,0,.06) calc(200%/7))}
-/* Streifen vertikal */
-.pitch.pat-vstripes::before{background:repeating-linear-gradient(90deg,
-  rgba(255,255,255,.05) 0, rgba(255,255,255,.05) calc(100%/9),
-  rgba(0,0,0,.06) calc(100%/9), rgba(0,0,0,.06) calc(200%/9))}
-/* Karo / Schachbrett — zwei überlagerte Streifensätze ergeben Karo */
-.pitch.pat-checker::before{background:
-  repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) calc(100%/7), rgba(0,0,0,.05) calc(100%/7), rgba(0,0,0,.05) calc(200%/7)),
-  repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) calc(100%/9), rgba(0,0,0,.05) calc(100%/9), rgba(0,0,0,.05) calc(200%/9))}
-/* Diagonal */
-.pitch.pat-diag::before{background:repeating-linear-gradient(45deg,
-  rgba(255,255,255,.045) 0, rgba(255,255,255,.045) 34px,
-  rgba(0,0,0,.055) 34px, rgba(0,0,0,.055) 68px)}
-/* Kreise / konzentrisch */
-.pitch.pat-circles::before{background:repeating-radial-gradient(circle at 50% 50%,
-  rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 32px,
-  rgba(0,0,0,.055) 32px, rgba(0,0,0,.055) 64px)}
-/* Kein Muster */
-.pitch.pat-none::before{background:none}
-/* 3D-Rasen — weiche Verlaufsstreifen + Beleuchtung/Vignette für Tiefe */
-.pitch.pat-3d::before{background:
-  repeating-linear-gradient(0deg,
-    rgba(255,255,255,.10) 0,
-    rgba(255,255,255,.02) calc(100%/14),
-    rgba(0,0,0,.02) calc(100%/14),
-    rgba(0,0,0,.14) calc(200%/14),
-    rgba(0,0,0,.02) calc(300%/14),
-    rgba(255,255,255,.02) calc(300%/14),
-    rgba(255,255,255,.10) calc(400%/14))}
-.pitch.pat-3d::after{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;z-index:1;background:
-  radial-gradient(ellipse 80% 60% at 50% 30%, rgba(255,255,255,.10), transparent 60%),
-  radial-gradient(ellipse 120% 90% at 50% 100%, rgba(0,0,0,.28), transparent 55%);
-  mix-blend-mode:soft-light}
-.pm{position:absolute;background:transparent;border:2px solid rgba(255,255,255,.55);pointer-events:none;box-shadow:0 0 2px rgba(0,0,0,.35)}
-.pm-hl{top:50%;left:3%;width:94%;height:0;border:none;border-top:2px solid rgba(255,255,255,.55);box-shadow:0 0 2px rgba(0,0,0,.3)}
+.pscroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:6px 4px 0}
+.pitch-outer{width:100%;flex-shrink:0}
+.pitch{width:100%;aspect-ratio:68/132;background:#2a5a2a;border-radius:8px;border:2px solid rgba(255,255,255,.12);position:relative;overflow:hidden;cursor:default}
+.pitch::before{content:'';position:absolute;inset:0;border-radius:6px;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0,transparent calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7-.5px),rgba(255,255,255,.04) calc(100%/7))}
+.pm{position:absolute;background:transparent;border:1.5px solid rgba(255,255,255,.13);pointer-events:none}
+.pm-hl{top:50%;left:5%;width:90%;height:0;border:none;border-top:1.5px solid rgba(255,255,255,.13)}
 .pm-cc{top:50%;left:50%;transform:translate(-50%,-50%);width:18%;aspect-ratio:1;border-radius:50%}
 .pm-pt{top:0;left:20%;width:60%;height:14%;border-top:none}
 .pm-pb{bottom:0;left:20%;width:60%;height:14%;border-bottom:none}
 .pm-gt{top:0;left:35%;width:30%;height:5%;border-top:none}
 .pm-gb{bottom:0;left:35%;width:30%;height:5%;border-bottom:none}
-.pm-spot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.85);pointer-events:none;box-shadow:0 0 3px rgba(0,0,0,.5)}
-/* Global styled hover tooltip, anchored to <body> so it never gets clipped */
-#hoverTip{position:fixed;background:rgba(4,4,18,.98);border:1px solid var(--brd2);border-radius:6px;color:var(--text);font-family:var(--fb);font-size:11px;font-weight:600;padding:5px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:99999;box-shadow:0 4px 14px rgba(0,0,0,.55);max-width:260px}
-#hoverTip.show{opacity:1}
 /* POSITION GROUP */
 .pgrp{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0;z-index:10}
-.pgrp:has(.pgrp-lbl:hover){z-index:500}
-.pgrp-lbl{font-family:var(--ff);font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;background:var(--pos-lbl-bg,rgba(30,34,54,.95));color:#fff;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-bottom:3px;cursor:grab;user-select:none;border:1px solid rgba(255,255,255,.18);box-shadow:0 2px 6px rgba(0,0,0,.5);display:flex;align-items:center;gap:4px}
+.pgrp-lbl{font-family:var(--ff);font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;background:rgba(0,0,0,.88);color:#fff;padding:2px 8px;border-radius:4px;white-space:nowrap;margin-bottom:3px;cursor:grab;user-select:none;box-shadow:0 2px 6px rgba(0,0,0,.5);display:flex;align-items:center;gap:4px}
 .pgrp-collapse{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.5);font-size:9px;padding:0 1px;line-height:1;flex-shrink:0;transition:transform .2s,color .15s}
 .pgrp-collapse:hover{color:#fff}
 .pgrp.collapsed .slot.sub,.pgrp.collapsed .slot-conn,.pgrp.collapsed .slot-add-btn{display:none!important}
@@ -146,11 +97,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .pgrp-sub-count{font-size:9px;font-weight:700;background:rgba(255,255,255,.15);border-radius:8px;padding:0 5px;min-width:14px;text-align:center;display:none}
 .pgrp.collapsed .pgrp-sub-count{display:inline-block}
 .pgrp-lbl:hover{background:rgba(91,106,245,.7);color:#fff}
-.pgrp-lbl{position:relative}
-.pgrp-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(4,4,18,.98);border:1px solid var(--brd2);border-radius:6px;font-family:var(--fb);font-size:11px;font-weight:500;color:var(--text2);padding:7px 10px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .14s;z-index:400;box-shadow:0 4px 14px rgba(0,0,0,.55);text-transform:none;letter-spacing:0;text-align:left;line-height:1.55}
-.pgrp-lbl:hover .pgrp-tip{opacity:1}
-.pgrp-tip b{color:var(--text);font-weight:700}
-.pgrp-tip .k{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:3px;padding:0 4px;font-family:var(--ff);font-size:9px;font-weight:700;margin-right:5px;color:#fff}
 /* SLOT */
 .slot{width:var(--slot-sz);height:var(--slot-sz);border-radius:50%;border:2px dashed rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s,width .2s,height .2s;position:relative;cursor:pointer;flex-shrink:0;overflow:hidden;background:rgba(0,0,0,.35);font-family:var(--ff);font-size:8px;font-weight:700;color:rgba(255,255,255,.22)}
 .slot img.face{width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;z-index:1}
@@ -165,23 +111,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
 .slot.sub .sini{font-size:10px}
 .snum-in{position:absolute;bottom:0;left:0;right:0;height:var(--snum-h);background:rgba(0,0,0,.72);font-family:var(--ff);font-size:var(--snum-sz);font-weight:800;text-align:center;line-height:var(--snum-h);color:rgba(255,255,255,.95);z-index:3;pointer-events:none}
 .slot.sub .snum-in{height:12px;font-size:8px;line-height:12px}
-.snwrap{position:relative;display:inline-flex;flex-direction:row;align-items:center;gap:3px;margin-top:2px;max-width:140px}
-.snlbl{font-family:var(--ff);font-size:var(--snlbl-sz);font-weight:700;color:rgba(230,230,255,.95);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.4;pointer-events:none}
-.snlbl-main{font-size:calc(var(--snlbl-sz) * 1.15);font-weight:800;color:#fff}
-.snlbl-sub{font-size:calc(var(--snlbl-sz) * 0.88);font-weight:600;color:rgba(210,210,235,.82)}
-/* Compact substitute rows (name list under the starter) */
-.sub-row{display:flex;align-items:center;gap:5px;margin-top:3px;padding:2px 7px 2px 5px;border-radius:11px;background:rgba(8,10,22,.82);border:1px solid rgba(255,255,255,.07);max-width:150px;cursor:pointer;transition:background .12s,border-color .12s;font-family:var(--ff)}
-.sub-row.filled:hover{background:rgba(20,24,44,.92);border-color:var(--rc)}
-.sub-row.drag-over{border-color:var(--rc);background:rgba(20,24,44,.95)}
-.sub-row.drag-src{opacity:.4}
-.sub-row.empty{opacity:.5;border-style:dashed;justify-content:center}
-.sub-row .sub-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 4px var(--rc)}
-.sub-row .sub-dot.empty{background:rgba(255,255,255,.25);box-shadow:none}
-.sub-row .sub-name{font-size:calc(var(--snlbl-sz) * 0.92);font-weight:600;color:rgba(225,225,245,.92);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
-.sub-row .sub-x{margin-left:auto;font-size:9px;color:rgba(231,76,60,.55);font-weight:700;padding:0 1px;opacity:0;transition:opacity .12s}
-.sub-row:hover .sub-x{opacity:1}
-.sub-row .sub-x:hover{color:var(--red2)}
-.pgrp.collapsed .sub-row{display:none!important}
+.snwrap{position:relative;display:inline-flex;flex-direction:row;align-items:center;gap:3px;margin-top:2px;max-width:80px}
+.snlbl{font-family:var(--ff);font-size:var(--snlbl-sz);font-weight:700;color:rgba(230,230,255,.95);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68px;line-height:1.4;pointer-events:none}
 .sntip{position:absolute;bottom:calc(100% + 5px);left:50%;transform:translateX(-50%);background:rgba(4,4,18,.97);border:1px solid var(--brd2);border-radius:4px;font-family:var(--ff);font-size:11px;font-weight:700;color:var(--text);padding:3px 9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s;z-index:300}
 .snwrap:hover .sntip{opacity:1}
 .slot-conn{width:1.5px;height:5px;background:rgba(255,255,255,.2);pointer-events:none;align-self:center}
@@ -358,7 +289,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
     <div class="pctrls">
       <div class="pctrl-row">
         <button class="btn b-g b-sm" onclick="saveFormationTab()" title="Aktuelle Formation speichern">💾 Formation speichern</button>
-        <button class="btn b-g b-sm" id="collapseAllBtn" onclick="toggleCollapseAll()" title="Alle Positionen ein-/ausklappen">▾ Alle einklappen</button>
         <button class="btn b-g b-sm" id="noteToggle" onclick="toggleNote()" title="Taktik-Notizen">📝</button>
       </div>
       <div class="ftabs" id="ftabs"></div>
@@ -390,20 +320,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
           <div class="csb-r"><span class="cslbl">Ring</span><label class="csw"><input type="color" value="#c0392b" oninput="setC('att',this.value)"></label></div>
         </div>
         <div class="csb-div"></div>
-        <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="rasenLbl">Rasen</span><label class="csw"><input type="color" value="#376b37" id="pitchColorPicker" oninput="document.getElementById('pitch').style.background=this.value"></label></div>
-        <div class="csb-r" style="padding:0 4px;flex-direction:column;gap:2px;align-items:stretch"><span class="cslbl" id="patLbl" style="text-align:center">Muster</span><select id="patSelect" onchange="setPitchPattern(this.value)" style="width:44px;background:var(--card2);color:var(--text2);border:1px solid var(--brd2);border-radius:4px;font-family:var(--ff);font-size:8px;font-weight:700;padding:2px 1px;cursor:pointer;text-align:center"><option value="stripes">≡ H</option><option value="vstripes">||| V</option><option value="checker">▦ Karo</option><option value="diag">╱ Diag</option><option value="circles">◎ Kreis</option><option value="3d">⛰ 3D</option><option value="none">∅ Kein</option></select></div>
-        <div class="csb-r" style="padding:0 4px;justify-content:center"><label style="display:flex;align-items:center;gap:3px;cursor:pointer;font-size:8px;font-weight:700;color:var(--text3);font-family:var(--ff)"><input type="checkbox" id="grassNoiseChk" checked onchange="setGrassNoise(this.checked)" style="cursor:pointer;width:11px;height:11px"><span id="noiseLbl">Textur</span></label></div>
-        <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="posLblLbl">Label</span><label class="csw"><input type="color" value="#1e2236" id="posLblColorPicker" oninput="setPosLblColor(this.value)"></label></div>
+        <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="rasenLbl">Rasen</span><label class="csw"><input type="color" value="#2a5a2a" id="pitchColorPicker" oninput="document.getElementById('pitch').style.background=this.value"></label></div>
         <div class="csb-r" style="padding:0 4px"><span class="cslbl" id="bgLbl">Hinter.</span><label class="csw"><input type="color" value="#0b0b16" oninput="setBg(this.value)"></label></div>
         <div class="csb-div"></div>
         <button class="cs-btn" style="background:var(--adim);border:1px solid var(--abrd);color:var(--acc2)" onclick="quickSave()" title="Speichern">💾</button>
         <button class="cs-btn" style="background:var(--card2);border:1px solid var(--brd2);color:var(--text2);margin-top:4px" onclick="openLoad()" title="Laden">📂</button>
         <div class="csb-div"></div>
-        <button class="cs-btn" style="background:var(--rdim);border:1px solid var(--red2);color:var(--red2);font-family:var(--ff);font-size:9px;font-weight:700;flex-direction:column;gap:1px;height:32px;width:44px" onclick="clearLineup()" title="Feld leeren"><span id="clearFieldLbl" style="font-size:8px">✕ leeren</span></button>
+        <button class="cs-btn" style="background:var(--rdim);border:1px solid var(--red2);color:var(--red2);font-family:var(--ff);font-size:9px;font-weight:700;flex-direction:column;gap:1px;height:32px;width:44px" onclick="clearLineup()" title="Feld leeren">✕<span style="font-size:8px">leeren</span></button>
       </div>
       <div class="pscroll" id="pscroll" ondragover="event.preventDefault()" ondrop="dropUnassign()">
         <div class="pitch-outer">
-          <div class="pitch pat-stripes grass-noise" id="pitch">
+          <div class="pitch" id="pitch">
             <div class="pm pm-hl"></div><div class="pm pm-cc"></div>
             <div class="pm pm-pt"></div><div class="pm pm-pb"></div>
             <div class="pm pm-gt"></div><div class="pm pm-gb"></div>
@@ -414,10 +341,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:var(
   </div>
   <div class="resize-handle" id="rh"></div>
   <div class="rpanel">
-    <div style="display:flex;align-items:center;background:var(--panel2);border-bottom:1px solid var(--brd)">
-      <div class="pph" id="pph" style="flex:1;border-bottom:none"></div>
-      <button id="fitColsBtn2" onclick="autoFitColumns()" title="Spaltenbreiten optimal an Inhalt anpassen" style="flex-shrink:0;background:var(--card2);border:1px solid var(--brd2);border-radius:var(--r);color:var(--text2);cursor:pointer;font-family:var(--ff);font-size:11px;font-weight:700;padding:5px 10px;white-space:nowrap;margin:0 8px">↔ Auto</button>
-    </div>
+    <div class="pph" id="pph"></div>
     <div class="colwrap"><div class="colh" id="colh"></div></div>
     <div class="plist" id="plist" ondragover="event.preventDefault()" ondrop="dropUnassign()" onclick="if(event.target===this){selectedPid=null;selectedSlotKey=null;renderPitch();renderList();}"></div>
     <div class="abar">
@@ -730,46 +654,6 @@ const LANGS={
     removeFromLineup:'Aus Aufstellung entfernen',
     editBtn:'Bearbeiten',
     deleteBtn:'Spieler löschen',
-    // ── UI additions ──
-    saveFormationBtn:'💾 Formation speichern',
-    saveFormationTip:'Aktuelle Formation als neuen Tab speichern',
-    collapseAllBtn:'▾ Alle einklappen',
-    expandAllBtn:'▸ Alle ausklappen',
-    collapseAllTip:'Alle Positionen ein-/ausklappen',
-    noteTip:'Taktik-Notizen',
-    posAll:'Alle',
-    ageSuffix:'J',
-    savedToast:'gespeichert',loadedToast:'geladen',loadConfirmSuffix:'laden?',
-    clubPlaceholder:'Dein Club / Save',
-    posLblColorLbl:'Label',
-    patLbl:'Muster',
-    noiseLbl:'Textur',
-    fitColsBtn:'↔ Spalten',fitColsTip:'Spaltenbreiten optimal an Inhalt anpassen',
-    clearFieldLbl:'✕ leeren',
-    // Tooltips (topbar)
-    tipFontSmaller:'Schrift kleiner',
-    tipFontLarger:'Schrift größer',
-    tipUndo:'Letzte Aufstellung rückgängig (Strg+Z)',
-    tipPNG:'Spielfeld als PNG exportieren',
-    tipImport:'Kader aus Screenshot importieren',
-    tipFMExport:'Kader aus FM CSV/HTML importieren',
-    tipSave:'Kaderplan speichern',
-    tipLoad:'Kaderplan laden',
-    tipClearField:'Feld leeren',
-    tipApiKey:'Key anzeigen',
-    tipDeleteFormation:'Formation löschen',
-    // Position label tooltip
-    posTipMove:'Verschieben',posTipMoveDesc:'gedrückt halten und frei positionieren',
-    posTipRename:'Umbenennen',posTipRenameDesc:'Doppelklick auf die Position',
-    posTipCollapse:'Einklappen',posTipCollapseDesc:'Ersatzspieler ein-/ausblenden',
-    // Sub-player tooltip
-    subTipSelect:'Klick: auswählen',subTipSlot:'2× Klick: Slot auswählen',
-    subTipCollapse:'Ersatzspieler ein-/ausklappen',
-    // Flag placeholder
-    flagPlaceholderTip:'Nation nicht importiert – klicken zum Bearbeiten',
-    // List cell tooltips
-    tipAltPosSwitch:'Klicken: Nebenpos. wechseln',tipAltPosAdd:'Klicken: Nebenpos. hinzufügen',
-    tipHierChange:'Klicken zum Ändern',
     planLbl:'VEREIN',
   },
   en:{
@@ -878,41 +762,6 @@ const LANGS={
     removeFromLineup:'Remove from lineup',
     editBtn:'Edit',
     deleteBtn:'Delete player',
-    // ── UI additions ──
-    saveFormationBtn:'💾 Save formation',
-    saveFormationTip:'Save current formation as a new tab',
-    collapseAllBtn:'▾ Collapse all',
-    expandAllBtn:'▸ Expand all',
-    collapseAllTip:'Collapse/expand all positions',
-    noteTip:'Tactical notes',
-    posAll:'All',
-    ageSuffix:'y',
-    savedToast:'saved',loadedToast:'loaded',loadConfirmSuffix:'load?',
-    clubPlaceholder:'Your club / save',
-    posLblColorLbl:'Label',
-    patLbl:'Pattern',
-    noiseLbl:'Texture',
-    fitColsBtn:'↔ Columns',fitColsTip:'Fit column widths to content',
-    clearFieldLbl:'✕ clear',
-    tipFontSmaller:'Smaller font',
-    tipFontLarger:'Larger font',
-    tipUndo:'Undo last lineup (Ctrl+Z)',
-    tipPNG:'Export pitch as PNG',
-    tipImport:'Import squad from screenshot',
-    tipFMExport:'Import squad from FM CSV/HTML',
-    tipSave:'Save squad plan',
-    tipLoad:'Load squad plan',
-    tipClearField:'Clear pitch',
-    tipApiKey:'Show key',
-    tipDeleteFormation:'Delete formation',
-    posTipMove:'Move',posTipMoveDesc:'hold and drag to position freely',
-    posTipRename:'Rename',posTipRenameDesc:'double-click the position',
-    posTipCollapse:'Collapse',posTipCollapseDesc:'show/hide substitutes',
-    subTipSelect:'Click: select',subTipSlot:'Double-click: select slot',
-    subTipCollapse:'Show/hide substitutes',
-    flagPlaceholderTip:'Nation not imported – click to edit',
-    tipAltPosSwitch:'Click: switch alt. position',tipAltPosAdd:'Click: add alt. position',
-    tipHierChange:'Click to change',
     planLbl:'CLUB',
   },
   es:{
@@ -1021,41 +870,6 @@ const LANGS={
     removeFromLineup:'Quitar de alineación',
     editBtn:'Editar',
     deleteBtn:'Eliminar jugador',
-    // ── UI additions ──
-    saveFormationBtn:'💾 Guardar formación',
-    saveFormationTip:'Guardar la formación actual como nueva pestaña',
-    collapseAllBtn:'▾ Contraer todo',
-    expandAllBtn:'▸ Expandir todo',
-    collapseAllTip:'Contraer/expandir todas las posiciones',
-    noteTip:'Notas tácticas',
-    posAll:'Todas',
-    ageSuffix:'a',
-    savedToast:'guardado',loadedToast:'cargado',loadConfirmSuffix:'¿cargar?',
-    clubPlaceholder:'Tu club / guardar',
-    posLblColorLbl:'Etiqueta',
-    patLbl:'Patrón',
-    noiseLbl:'Textura',
-    fitColsBtn:'↔ Columnas',fitColsTip:'Ajustar ancho de columnas al contenido',
-    clearFieldLbl:'✕ vaciar',
-    tipFontSmaller:'Fuente más pequeña',
-    tipFontLarger:'Fuente más grande',
-    tipUndo:'Deshacer última alineación (Ctrl+Z)',
-    tipPNG:'Exportar campo como PNG',
-    tipImport:'Importar plantilla desde captura',
-    tipFMExport:'Importar plantilla desde CSV/HTML de FM',
-    tipSave:'Guardar plan de plantilla',
-    tipLoad:'Cargar plan de plantilla',
-    tipClearField:'Vaciar campo',
-    tipApiKey:'Mostrar clave',
-    tipDeleteFormation:'Eliminar formación',
-    posTipMove:'Mover',posTipMoveDesc:'mantén pulsado y arrastra libremente',
-    posTipRename:'Renombrar',posTipRenameDesc:'doble clic en la posición',
-    posTipCollapse:'Contraer',posTipCollapseDesc:'mostrar/ocultar suplentes',
-    subTipSelect:'Clic: seleccionar',subTipSlot:'Doble clic: seleccionar hueco',
-    subTipCollapse:'Mostrar/ocultar suplentes',
-    flagPlaceholderTip:'Nación no importada – clic para editar',
-    tipAltPosSwitch:'Clic: cambiar pos. secundaria',tipAltPosAdd:'Clic: añadir pos. secundaria',
-    tipHierChange:'Clic para cambiar',
     planLbl:'CLUB',
   },
 };
@@ -1097,7 +911,6 @@ function setLang(l){
   // Update all static text
   document.getElementById('appTitle').textContent=t('appTitle');
   const pl=document.getElementById('planLbl'); if(pl) pl.textContent=t('planLbl')||'PLAN';
-  const tlbl=document.getElementById('teamLbl'); if(tlbl&&tlbl.style.fontStyle==='italic') tlbl.textContent=t('clubPlaceholder');
   document.getElementById('byLine').textContent=t('by');
   document.getElementById('addPlayerTopBtn').textContent=t('addPlayer');
   document.getElementById('undoBtn').textContent=t('undoBtn');
@@ -1111,9 +924,6 @@ function setLang(l){
   document.getElementById('allowDupLbl').textContent=t('mehrfach');
   document.getElementById('csb-title-el').textContent=t('farbe');
   document.getElementById('rasenLbl').textContent=t('rasen');
-  const pll=document.getElementById('posLblLbl'); if(pll) pll.textContent=t('posLblColorLbl');
-  const patL=document.getElementById('patLbl'); if(patL) patL.textContent=t('patLbl');
-  const nl=document.getElementById('noiseLbl'); if(nl) nl.textContent=t('noiseLbl');
   document.getElementById('bgLbl').textContent=t('hintergrund');
   const noteEl=document.querySelector('#tacticNote'); if(noteEl) noteEl.placeholder=t('noteLabel');
   COLS=mkCOLS();
@@ -1169,25 +979,6 @@ function setLang(l){
   const abLlbl=document.getElementById('abLlbl'); if(abLlbl) abLlbl.textContent=t('abL');
   const abTlbl=document.getElementById('abTlbl'); if(abTlbl) abTlbl.textContent=t('abT');
   const abBlbl=document.getElementById('abBlbl'); if(abBlbl) abBlbl.textContent=t('abB');
-  // Left panel buttons + tooltips
-  const _sT=(id,txtKey,tipKey)=>{ const el=document.getElementById(id); if(!el)return; if(txtKey&&t(txtKey)!==txtKey) el.textContent=t(txtKey); if(tipKey&&t(tipKey)!==tipKey) el.title=t(tipKey); };
-  const _tip=(sel,tipKey)=>{ const el=typeof sel==='string'?document.querySelector(sel):sel; if(el&&t(tipKey)!==tipKey) el.title=t(tipKey); };
-  const saveFBtn=document.querySelector('[onclick="saveFormationTab()"]'); if(saveFBtn){ saveFBtn.textContent=t('saveFormationBtn'); saveFBtn.title=t('saveFormationTip'); }
-  _sT('noteToggle',null,'noteTip');
-  updateCollapseAllBtn(); // sets its own text+title in current lang
-  // Topbar tooltips
-  _tip('[onclick="adjFont(-1)"]','tipFontSmaller');
-  _tip('[onclick="adjFont(1)"]','tipFontLarger');
-  _tip('#undoBtn','tipUndo');
-  _tip('[onclick="exportPNG()"]','tipPNG');
-  const fitBtn2=document.getElementById('fitColsBtn2'); if(fitBtn2){ fitBtn2.title=t('fitColsTip'); }
-  _tip('[onclick="openImport()"]','tipImport');
-  _tip('[onclick="openCSVImport()"]','tipFMExport');
-  _tip('[onclick="quickSave()"]','tipSave');
-  _tip('[onclick="openLoad()"]','tipLoad');
-  _tip('[onclick="clearLineup()"]','tipClearField');
-  const cfl=document.getElementById('clearFieldLbl'); if(cfl) cfl.textContent=t('clearFieldLbl');
-  _tip('#apiKeyToggle','tipApiKey');
   renderAll();
 }
 // Init lang
@@ -1326,19 +1117,11 @@ function flagToCode(flag){
   }catch(e){}
   return null;
 }
-// Render flag: img from flagcdn.com with emoji text fallback.
-// When nation is empty, renders a neutral placeholder flag (grey) so it's clear
-// the country wasn't imported. Pass allowPlaceholder=false to suppress that.
-function flagHtml(nation, size='13px', inline=false, allowPlaceholder=true){
-  const st=inline?`display:inline-block;vertical-align:middle;margin-right:2px`:`display:block;margin:0 auto`;
-  if(!nation){
-    if(!allowPlaceholder) return '';
-    // neutral placeholder: grey rectangle with a faint globe, matching flag proportions
-    const h=parseInt(size)||13;
-    const w=Math.round(h*1.5);
-    return `<span title="${t('flagPlaceholderTip')}" style="${st};width:${w}px;height:${size};background:linear-gradient(135deg,#3a4152,#2a3040);border:1px solid rgba(255,255,255,.12);border-radius:1px;line-height:${size};text-align:center;font-size:${Math.round(h*0.7)}px;color:rgba(255,255,255,.4);overflow:hidden">🏳</span>`;
-  }
+// Render flag: img from flagcdn.com with emoji text fallback
+function flagHtml(nation, size='13px', inline=false){
+  if(!nation) return '';
   const code=flagToCode(nation);
+  const st=inline?`display:inline-block;vertical-align:middle;margin-right:2px`:`display:block;margin:0 auto`;
   if(code){
     const h=parseInt(size)||13;
     return `<img src="https://flagcdn.com/h20/${code.toLowerCase()}.png" alt="${nation}"
@@ -1367,29 +1150,9 @@ function setBg(v){
   root.style.setProperty('--hover',    mk(r+26,g+26,b+53));
   document.body.style.background=v;
 }
-// Position-label background color (the "ST ▸" boxes on the pitch)
-function setPosLblColor(v){
-  document.documentElement.style.setProperty('--pos-lbl-bg', v);
-  try{ localStorage.setItem('fm26_poslbl', v); }catch(e){}
-}
-// Pitch mowing pattern
-const PITCH_PATS=['stripes','vstripes','checker','diag','circles','3d','none'];
-function setPitchPattern(p){
-  const pitch=document.getElementById('pitch');
-  if(!pitch) return;
-  PITCH_PATS.forEach(x=>pitch.classList.remove('pat-'+x));
-  pitch.classList.add('pat-'+p);
-  try{ localStorage.setItem('fm26_pitchpat', p); }catch(e){}
-}
-// Grass noise texture on/off
-function setGrassNoise(on){
-  const pitch=document.getElementById('pitch');
-  if(pitch) pitch.classList.toggle('grass-noise', !!on);
-  try{ localStorage.setItem('fm26_grassnoise', on?'1':'0'); }catch(e){}
-}
 let _fontSize=13;
 function adjFont(delta){
-  _fontSize=Math.max(10,Math.min(24,_fontSize+delta));
+  _fontSize=Math.max(10,Math.min(18,_fontSize+delta));
   applyFontScale(_fontSize);
   localStorage.setItem('fm26_fs',_fontSize);
   // Re-render list immediately, pitch after CSS vars settle
@@ -1400,8 +1163,8 @@ function applyFontScale(fs){
   const r=document.documentElement;
   const s=fs/13; // scale factor relative to base 13px
   r.style.setProperty('--fs',       fs+'px');
-  r.style.setProperty('--slot-sz',  Math.round(52*s)+'px');
-  r.style.setProperty('--slot-sub', Math.round(24*s)+'px');
+  r.style.setProperty('--slot-sz',  Math.round(38*s)+'px');
+  r.style.setProperty('--slot-sub', Math.round(26*s)+'px');
   r.style.setProperty('--prow-h',   Math.round(42*s)+'px');
   r.style.setProperty('--pav-sz',   Math.round(28*s)+'px');
   r.style.setProperty('--snlbl-sz', Math.round(10*s)+'px');
@@ -1412,14 +1175,6 @@ function applyFontScale(fs){
 (function(){
   const s=localStorage.getItem('fm26_fs');
   if(s){ _fontSize=parseInt(s)||13; applyFontScale(_fontSize); }
-  try{
-    const pc=localStorage.getItem('fm26_poslbl');
-    if(pc){ document.documentElement.style.setProperty('--pos-lbl-bg', pc); const el=document.getElementById('posLblColorPicker'); if(el) el.value=pc; }
-    const pat=localStorage.getItem('fm26_pitchpat');
-    if(pat){ setPitchPattern(pat); const ps=document.getElementById('patSelect'); if(ps) ps.value=pat; }
-    const gn=localStorage.getItem('fm26_grassnoise');
-    if(gn!==null){ const on=gn==='1'; setGrassNoise(on); const gc=document.getElementById('grassNoiseChk'); if(gc) gc.checked=on; }
-  }catch(e){}
 })();
 function allPids(){ const s=new Set(); Object.values(lineup).forEach(a=>(a||[]).forEach(id=>{if(id)s.add(id);})); return s; }
 function primPids(){ const s=new Set(); Object.values(lineup).forEach(a=>{if(a&&a[0])s.add(a[0]);}); return s; }
@@ -1452,7 +1207,7 @@ function renderFTabs(){
   const custom=getCustomFormationTabs();
   document.getElementById('ftabs').innerHTML=[
     ...Object.keys(BUILTIN_FORMS).map(f=>`<div class="ft${f===formation?' on':''}" onclick="setFormation('${f}')">${f}</div>`),
-    ...custom.map((cf,i)=>`<div class="ft${cf.id===formation?' on':''}" style="color:var(--gold2);border-color:rgba(232,160,32,.3);display:flex;align-items:center;gap:4px;padding-right:4px" onclick="loadFormationTab(${i})" title="${cf.name}">${cf.name}<span onclick="event.stopPropagation();deleteFormationTab(${i})" style="font-size:9px;opacity:.5;cursor:pointer;padding:1px 3px;border-radius:2px;transition:all .15s;font-family:var(--ff)" onmouseover="this.style.opacity=1;this.style.background='rgba(231,76,60,.3)'" onmouseout="this.style.opacity=.5;this.style.background=''" title="${t('tipDeleteFormation')}">✕</span></div>`)
+    ...custom.map((cf,i)=>`<div class="ft${cf.id===formation?' on':''}" style="color:var(--gold2);border-color:rgba(232,160,32,.3);display:flex;align-items:center;gap:4px;padding-right:4px" onclick="loadFormationTab(${i})" title="${cf.name}">${cf.name}<span onclick="event.stopPropagation();deleteFormationTab(${i})" style="font-size:9px;opacity:.5;cursor:pointer;padding:1px 3px;border-radius:2px;transition:all .15s;font-family:var(--ff)" onmouseover="this.style.opacity=1;this.style.background='rgba(231,76,60,.3)'" onmouseout="this.style.opacity=.5;this.style.background=''" title="Formation löschen">✕</span></div>`)
   ].join('');
   // tbadge removed
 }
@@ -1462,7 +1217,7 @@ function saveFormationTab(){
   // If no name set yet, ask for one directly
   let name=(formationName&&!formationName.startsWith('cf_'))?formationName:'';
   if(!name){
-    const v=prompt(t('renameFPrompt'),formation||'Meine Formation');
+    const v=prompt('Formation benennen:',formation||'Meine Formation');
     if(!v||!v.trim()) return;
     name=v.trim();
   }
@@ -1522,36 +1277,8 @@ function setFormation(f){
   renderAll();
 }
 function renameFormation(){
-  const v=prompt(t('renameFPrompt'),formationName||formation);
+  const v=prompt('Formation benennen:',formationName||formation);
   if(v!==null){ formationName=v.trim(); renderFTabs(); }
-}
-
-// Collapse/expand ALL position groups at once (global equivalent of the
-// per-position ▾ arrow). Only groups that actually have sub-players are affected.
-let allCollapsed=false;
-function toggleCollapseAll(){
-  const slots=allSlots();
-  // a slot is collapsible only if it has at least one filled sub-player (index>0)
-  const collapsible=slots.filter(s=>{
-    const arr=lineup[s.k]||[];
-    return arr.slice(1).some(Boolean);
-  });
-  // decide target state: if anything is currently expanded → collapse all; else expand all
-  const anyExpanded=collapsible.some(s=>!collapsedSlots.has(s.k));
-  allCollapsed=anyExpanded;
-  if(allCollapsed){
-    collapsible.forEach(s=>collapsedSlots.add(s.k));
-  }else{
-    collapsible.forEach(s=>collapsedSlots.delete(s.k));
-  }
-  updateCollapseAllBtn();
-  renderPitch();
-}
-function updateCollapseAllBtn(){
-  const btn=document.getElementById('collapseAllBtn');
-  if(!btn) return;
-  btn.textContent=allCollapsed?t('expandAllBtn'):t('collapseAllBtn');
-  btn.title=t('collapseAllTip');
 }
 
 // Add new position slot
@@ -1638,37 +1365,11 @@ function faceHTML(fmId,c,initials){
 // ══════════════════════════════════
 // PITCH RENDER
 // ══════════════════════════════════
-// Size the pitch: use the FULL available width; if that would make it taller
-// than the visible area, cap the height instead (so nothing is cut off).
-// The field may become a bit wider than the true 68:104 ratio to fill the space.
-const PITCH_RATIO=68/104; // natural width/height
-function fitPitch(){
-  const sc=document.querySelector('.pscroll');
-  const outer=document.querySelector('.pitch-outer');
-  const pitch=document.getElementById('pitch');
-  if(!sc||!outer||!pitch) return;
-  const cs=getComputedStyle(sc);
-  const padX=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
-  const padY=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
-  const availW=sc.clientWidth - padX;
-  const availH=sc.clientHeight - padY;
-  if(availW<=0||availH<=0) return;
-  // Take full width; height from ratio, but never exceed available height.
-  let w=availW;
-  let h=Math.min(availH, w/PITCH_RATIO);
-  w=Math.floor(w); h=Math.floor(h);
-  outer.style.width=w+'px';
-  outer.style.height=h+'px';
-  pitch.style.width=w+'px';
-  pitch.style.height=h+'px';
-}
-
 function renderPitch(){
-  fitPitch();
   const pitch=document.getElementById('pitch');
-  pitch.innerHTML=`<div class="grass-tex"></div><div class="pm pm-hl"></div><div class="pm pm-cc"></div>
+  pitch.innerHTML=`<div class="pm pm-hl"></div><div class="pm pm-cc"></div>
     <div class="pm pm-pt"></div><div class="pm pm-pb"></div>
-    <div class="pm pm-gt"></div><div class="pm pm-gb"></div><div class="pm-spot"></div>`;
+    <div class="pm pm-gt"></div><div class="pm pm-gb"></div>`;
 
   const pH=pitch.getBoundingClientRect().height||500;
   // Read actual sizes from CSS vars so scaling works
@@ -1676,8 +1377,7 @@ function renderPitch(){
   const _sub=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--slot-sub'))||36;
   const _snl=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--snlbl-sz'))||10;
   const PRIM=_s, SUB=_sub, CONN=5, LBL=17, NM=_snl*1.4+2, PLUS=24;
-  const SUBROW=Math.round(_snl*1.4+8); // compact sub-row height incl. gap
-  function grpH(n){ return LBL+3+PRIM+NM+(n-1)*SUBROW+CONN+PLUS; }
+  function grpH(n){ return LBL+3+PRIM+NM+(n-1)*(CONN+SUB+NM)+CONN+PLUS; }
 
   // Collect all slots (builtin rows + custom)
   const slots=[];
@@ -1714,19 +1414,7 @@ function renderPitch(){
     subCount.className='pgrp-sub-count';
     lbl.appendChild(subCount);
 
-    // Styled hover tooltip explaining the label's interactions
-    const tip=document.createElement('div');
-    tip.className='pgrp-tip';
-    tip.innerHTML=
-      '<div><span class="k">DRAG</span><b>'+t('posTipMove')+'</b> – '+t('posTipMoveDesc')+'</div>'+
-      '<div><span class="k">2×</span><b>'+t('posTipRename')+'</b> – '+t('posTipRenameDesc')+'</div>'+
-      '<div><span class="k">▾</span><b>'+t('posTipCollapse')+'</b> – '+t('posTipCollapseDesc')+'</div>';
-    lbl.appendChild(tip);
-
-    // Ensure tooltip/label render above other position groups (fallback for :has())
-    lbl.addEventListener('mouseenter',()=>{ grp.style.zIndex='500'; });
-    lbl.addEventListener('mouseleave',()=>{ grp.style.zIndex=''; });
-
+    lbl.title='Ziehen: verschieben · Doppelklick: bearbeiten';
     lbl.addEventListener('dblclick',e=>{ e.stopPropagation(); openEditPos(slot); });
 
     let dragging=false, dx0=0, dy0=0, left0=0, top0=0;
@@ -1751,7 +1439,7 @@ function renderPitch(){
     const colBtn=document.createElement('button');
     colBtn.className='pgrp-collapse';
     colBtn.textContent='▾';
-    colBtn.title=t('subTipCollapse');
+    colBtn.title='Ersatzspieler ein-/ausklappen';
     colBtn.addEventListener('mousedown',e=>e.stopPropagation());
     colBtn.addEventListener('click',e=>{
       e.stopPropagation();
@@ -1778,51 +1466,7 @@ function renderPitch(){
       const pid=pids[i]||null;
       const p=pid?players.find(x=>x.id===pid):null;
       const c=p?avc(p.id):null;
-
-      // ── Sub-players (i>0): compact name row instead of a big circle ──
-      if(i>0){
-        const row=document.createElement('div');
-        row.className='sub-row'+(p?' filled':'');
-        row.style.setProperty('--rc', catC);
-        // drop target on the row
-        row.ondragover=e=>{ e.preventDefault(); row.classList.add('drag-over'); grp.classList.add('drag-active'); };
-        row.ondragleave=()=>{ row.classList.remove('drag-over'); grp.classList.remove('drag-active'); };
-        row.ondrop=e=>{ e.preventDefault(); row.classList.remove('drag-over'); grp.classList.remove('drag-active'); doAssign(slot.k,i,e.dataTransfer.getData('srcSlot'),parseInt(e.dataTransfer.getData('srcIdx')||'0')); };
-        if(p){
-          const flag=showFlags()?flagHtml(p.nation,'10px',true):'';
-          const dot=`<span class="sub-dot" style="background:${catC}"></span>`;
-          row.innerHTML=`${dot}${flag}<span class="sub-name">${p.name.split(' ').pop()}</span><span class="sub-x" title="${t('removeFromLineup')||'Entfernen'}">✕</span>`;
-          row.title=p.name+(p.nation?' · '+p.nation:'');
-          row.draggable=true;
-          row.ondragstart=e=>{
-            dragId=pid; e.dataTransfer.setData('srcSlot',slot.k);
-            e.dataTransfer.setData('srcIdx',String(i));
-            e.dataTransfer.effectAllowed='move'; _ghostActive=true; showGhost(p,e);
-            const blank=document.createElement('canvas'); blank.width=1;blank.height=1; blank.style.cssText='position:fixed;top:-9999px';
-            document.body.appendChild(blank); e.dataTransfer.setDragImage(blank,0,0);
-            setTimeout(()=>{if(blank.parentNode)blank.parentNode.removeChild(blank);},0);
-            row.classList.add('drag-src');
-          };
-          row.ondragend=()=>{ dragId=null; row.classList.remove('drag-src'); hideGhost(); };
-          row.onclick=e=>{
-            e.stopPropagation();
-            if(e.target.classList.contains('sub-x')){
-              pushUndo();
-              lineup[slot.k]=(lineup[slot.k]||[]).filter(x=>x!==pid);
-              const rem2=(lineup[slot.k]||[]).filter(Boolean).length;
-              if(slotSubs[slot.k]>Math.max(1,rem2)) slotSubs[slot.k]=Math.max(1,rem2);
-              renderPitch(); renderList(); return;
-            }
-            selectP(pid);
-          };
-        } else {
-          row.classList.add('empty');
-          row.innerHTML=`<span class="sub-dot empty"></span><span class="sub-name" style="opacity:.5">+</span>`;
-          row.onclick=e=>{ e.stopPropagation(); selectedSlotKey=slot.k; selectedPid=null; openSlot(slot.k,slot.l,i,n); };
-        }
-        grp.appendChild(row);
-        continue;
-      }
+      if(i>0){ const conn=document.createElement('div'); conn.className='slot-conn'; grp.appendChild(conn); }
 
       const sEl=document.createElement('div');
       sEl.className='slot'+(p?' filled':'')+(i>0?' sub':'');
@@ -1887,12 +1531,12 @@ function renderPitch(){
       grp.appendChild(sEl);
 
       // Name + flag + remove button
-      const snw=document.createElement('div'); snw.className='snwrap'+(i===0?' snwrap-main':' snwrap-sub');
-      const snl=document.createElement('div'); snl.className='snlbl'+(i===0?' snlbl-main':' snlbl-sub');
+      const snw=document.createElement('div'); snw.className='snwrap';
+      const snl=document.createElement('div'); snl.className='snlbl';
       if(p){
-        const flag=showFlags()?flagHtml(p.nation,i===0?'12px':'9px',true):'';
+        const flag=(p.nation&&showFlags())?flagHtml(p.nation,'11px',true):'';
         snl.innerHTML=flag+`<span>${p.name.split(' ').pop()}</span>`;
-        const tip=document.createElement('div'); tip.className='sntip'; tip.textContent=p.name+(p.nation?' '+p.nation:'')+'  ·  '+t('subTipSelect')+'  ·  '+t('subTipSlot'); snw.appendChild(tip);
+        const tip=document.createElement('div'); tip.className='sntip'; tip.textContent=p.name+(p.nation?' '+p.nation:'')+'  ·  Klick: auswählen  ·  2× Klick: Slot auswählen'; snw.appendChild(tip);
         snw.appendChild(snl);
         // ✕ remove badge — visible on hover
         const rem=document.createElement('div');
@@ -2094,44 +1738,6 @@ function endColResize(){
   document.removeEventListener('mousemove',doColResize);
   document.removeEventListener('mouseup',endColResize);
 }
-
-// Measure widest content per resizable column and set optimal widths.
-function autoFitColumns(){
-  // Canvas for text measurement using the list font
-  const cvs=autoFitColumns._c||(autoFitColumns._c=document.createElement('canvas'));
-  const ctx=cvs.getContext('2d');
-  const fs=getComputedStyle(document.documentElement).getPropertyValue('--fs').trim()||'13px';
-  const fb=getComputedStyle(document.documentElement).getPropertyValue('--fb').trim()||'sans-serif';
-  const measure=(txt,weight='500',size=fs)=>{ ctx.font=`${weight} ${size} ${fb}`; return ctx.measureText(txt||'').width; };
-
-  const PAD=18; // left+right cell padding + a little slack
-  const MIN={pos:56,num:34,club:70,age:32,hier:60};
-  const MAX={pos:120,num:70,club:280,age:60,hier:200};
-
-  // seed with header label widths
-  const w={};
-  COLS.forEach(col=>{ if(COL_W[col.id]>0){ w[col.id]=measure(col.lbl,'700',fs)+22; } });
-
-  players.forEach(p=>{
-    if('pos' in w){
-      const posTxt=p.position+(p.altPos?' '+p.altPos:'');
-      w.pos=Math.max(w.pos, measure(posTxt,'700','11px')+10);
-    }
-    if('num' in w) w.num=Math.max(w.num, measure(p.number!=null?String(p.number):'','700','15px'));
-    if('club' in w) w.club=Math.max(w.club, measure(p.club||'','500','11px'));
-    if('age' in w) w.age=Math.max(w.age, measure(p.age!=null?String(p.age):'','500','12px'));
-    if('hier' in w){ const h=HIER[p.hier]||HIER.rotation; w.hier=Math.max(w.hier, measure(h.l||'','700','11px')+16); }
-  });
-
-  Object.keys(w).forEach(id=>{
-    let val=Math.round(w[id]+PAD);
-    if(MIN[id]) val=Math.max(MIN[id],val);
-    if(MAX[id]) val=Math.min(MAX[id],val);
-    COL_W[id]=val;
-    document.documentElement.style.setProperty('--cw-'+id, val+'px');
-  });
-  renderColH();
-}
 function renderColH(){
   const ch=document.getElementById('colh'); ch.innerHTML='';
   COLS.forEach((col,idx)=>{
@@ -2209,7 +1815,7 @@ function renderPPills(){
     const cnt=posCnt[p]||0;
     const low=p!=='Alle'&&cnt<2;
     const cntHtml=p!=='Alle'?`<span style="font-size:9px;margin-left:3px;opacity:.8;color:${low?'var(--red2)':'inherit'}">${cnt}</span>`:'';
-    return `<div class="ppill${p===activePos?' on':''}" onclick="setPos('${p}')" style="${low?'color:var(--red2)':''}">${p==='Alle'?t('posAll'):p}${cntHtml}</div>`;
+    return `<div class="ppill${p===activePos?' on':''}" onclick="setPos('${p}')" style="${low?'color:var(--red2)':''}">${p}${cntHtml}</div>`;
   }).join('');
 }
 function setPos(p){ if(p==='|')return; activePos=p; renderPPills(); renderList(); }
@@ -2293,15 +1899,15 @@ function rowHTML(p,prim,assigned,selSlot){
           return `<div class="pc c-pos" style="flex-direction:column;align-items:flex-start;gap:2px">
             <span style="background:${posC}22;color:${posC};padding:1px 5px;border-radius:3px;font-family:var(--ff);font-size:10px;font-weight:700;cursor:default">${p.position}</span>
             <span style="background:${p.altPos?(altC+'18'):'rgba(255,255,255,.04)'};color:${p.altPos?altC:'var(--text3)'};padding:1px 5px;border-radius:3px;font-family:var(--ff);font-size:9px;font-weight:700;cursor:pointer;opacity:${p.altPos?'.85':'.45'};transition:all .15s;border:1px dashed ${p.altPos?(altC+'44'):'rgba(255,255,255,.12)'}"
-              title="${p.altPos?t('tipAltPosSwitch'):t('tipAltPosAdd')}"
+              title="${p.altPos?'Klicken: Nebenpos. wechseln':'Klicken: Nebenpos. hinzufügen'}"
               onclick="event.stopPropagation();cycleAltPos('${p.id}')"
             >${p.altPos||t('altNeben')}</span>
           </div>`;
         }
         case 'num': return `<div class="pc c-num">${p.number||'—'}</div>`;
-        case 'name': return `<div class="pc c-name"><div class="pav" style="background:${c}22;color:${c}">${fHtml}</div><div style="min-width:0;flex:1"><div class="pnfull">${flagHtml(p.nation,'14px',true)}${p.name}${inP?`<span style="font-size:8px;background:var(--adim);color:var(--acc2);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterStarter').slice(0,4)}</span>`:''}${inS?`<span style="font-size:8px;background:rgba(91,106,245,.1);color:rgba(91,106,245,.6);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterSub').slice(0,3)}</span>`:''}</div><div class="psub" style="font-size:10px;color:var(--text3)">${p.position}${p.age?' · '+p.age+t('ageSuffix'):''}</div></div></div>`;
+        case 'name': return `<div class="pc c-name"><div class="pav" style="background:${c}22;color:${c}">${fHtml}</div><div style="min-width:0;flex:1"><div class="pnfull">${p.nation?flagHtml(p.nation,'14px',true):''}${p.name}${inP?`<span style="font-size:8px;background:var(--adim);color:var(--acc2);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterStarter').slice(0,4)}</span>`:''}${inS?`<span style="font-size:8px;background:rgba(91,106,245,.1);color:rgba(91,106,245,.6);padding:1px 4px;border-radius:2px;font-weight:700;font-family:var(--ff);flex-shrink:0}">${t('filterSub').slice(0,3)}</span>`:''}</div><div class="psub" style="font-size:10px;color:var(--text3)">${p.position}${p.age?' · '+p.age+'J':''}</div></div></div>`;
         case 'age': return `<div class="pc c-age">${p.age||'—'}</div>`;
-        case 'hier': return `<div class="pc c-hier" style="gap:2px"><span class="hbdg" style="background:${h.bg};color:${h.c};cursor:pointer" title="${t('tipHierChange')}" onclick="event.stopPropagation();cycleHier('${p.id}')">${h.l}</span><span class="hier-caret" title="${t('tipHierChange')}" onclick="event.stopPropagation();openHierMenu(event,'${p.id}')" style="cursor:pointer;color:var(--text3);font-size:9px;padding:0 2px;line-height:1;user-select:none">▾</span></div>`;
+        case 'hier': return `<div class="pc c-hier"><span class="hbdg" style="background:${h.bg};color:${h.c};cursor:pointer" title="Klicken zum Ändern" onclick="event.stopPropagation();cycleHier('${p.id}')">${h.l}</span></div>`;
         case 'club': return `<div class="pc c-club" title="${p.club||''}" style="font-size:11px">${p.club||'—'}</div>`;
         case 'note': return `<div class="pc c-note">
   ${p.note?`<button class="ibtn" onclick="event.stopPropagation();openNote('${p.id}')" onmouseenter="showNoteTooltip(event,'${p.id}')" onmouseleave="hideNoteTooltip()" style="color:var(--gold2);font-size:13px" title="">📝</button>`:`<button class="ibtn" onclick="event.stopPropagation();openNote('${p.id}')" style="opacity:.2;font-size:13px" title="">📝</button>`}
@@ -2334,41 +1940,6 @@ function cycleHier(id){
   const idx=hKeys.indexOf(p.hier||'rotation');
   p.hier=hKeys[(idx+1)%hKeys.length];
   renderList(); updateAnalysis();
-}
-
-// Dropdown menu to pick hierarchy directly (alternative to cycling)
-function openHierMenu(ev, id){
-  ev.stopPropagation();
-  document.getElementById('hierMenu')?.remove();
-  const p=players.find(x=>x.id===id); if(!p) return;
-  const hKeys=['key','influencer','first','rotation','fringe','youth','new'];
-  const menu=document.createElement('div');
-  menu.id='hierMenu';
-  menu.style.cssText='position:fixed;z-index:99999;background:var(--panel2);border:1px solid var(--brd2);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.6);padding:4px;min-width:170px;font-family:var(--fb);font-size:12px';
-  hKeys.forEach(k=>{
-    const h=HIER[k];
-    const row=document.createElement('div');
-    const active=(p.hier||'rotation')===k;
-    row.style.cssText=`display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:5px;cursor:pointer;transition:background .12s;${active?'background:var(--hover)':''}`;
-    row.innerHTML=`<span style="background:${h.bg};color:${h.c};font-weight:700;font-size:10px;padding:1px 6px;border-radius:3px;font-family:var(--ff)">${h.l}</span>`;
-    row.onmouseover=()=>{ if(!active) row.style.background='var(--hover)'; };
-    row.onmouseout=()=>{ if(!active) row.style.background=''; };
-    row.onclick=(e)=>{ e.stopPropagation(); p.hier=k; document.getElementById('hierMenu')?.remove(); renderList(); updateAnalysis(); };
-    menu.appendChild(row);
-  });
-  document.body.appendChild(menu);
-  // Position near the caret, kept within viewport
-  const r=ev.target.getBoundingClientRect();
-  const mw=menu.offsetWidth, mh=menu.offsetHeight;
-  let x=r.left, y=r.bottom+4;
-  if(x+mw>window.innerWidth-8) x=window.innerWidth-mw-8;
-  if(y+mh>window.innerHeight-8) y=r.top-mh-4;
-  menu.style.left=Math.max(8,x)+'px';
-  menu.style.top=Math.max(8,y)+'px';
-  // Close on outside click / scroll
-  const close=(e)=>{ if(!menu.contains(e.target)){ menu.remove(); document.removeEventListener('mousedown',close); window.removeEventListener('scroll',closeS,true); } };
-  const closeS=()=>{ menu.remove(); document.removeEventListener('mousedown',close); window.removeEventListener('scroll',closeS,true); };
-  setTimeout(()=>{ document.addEventListener('mousedown',close); window.addEventListener('scroll',closeS,true); },0);
 }
 
 function selectP(id){
@@ -2476,37 +2047,27 @@ function packState(name){
     SC:JSON.parse(JSON.stringify(SC)),
     SCA:JSON.parse(JSON.stringify(SCA))};
 }
-// Returns the entered club/save name, or '' if only the italic placeholder is shown
-function getClubName(){
-  const lbl=document.getElementById('teamLbl');
-  if(!lbl) return '';
-  return lbl.style.fontStyle==='italic' ? '' : lbl.textContent.trim();
-}
 function quickSave(){
-  const club=getClubName();
-  // Prefill with the club name; if none set, use the placeholder text so it's clear
-  const placeholder=document.getElementById('teamLbl')?.textContent.trim()||t('clubPlaceholder');
-  const suggestion=club||placeholder;
-  const name=prompt(t('savePrompt'),suggestion);
+  const name=prompt('Plan-Name:',formationName||formation+' '+new Date().toLocaleDateString('de'));
   if(!name)return;
   const saves=getSaves(); saves.unshift(packState(name)); if(saves.length>20)saves.pop();
   localStorage.setItem(SK,JSON.stringify(saves));
-  showToast('✓ "'+name+'" '+t('savedToast'),'var(--green2)');
+  showToast('✓ "'+name+'" gespeichert','var(--green2)');
 }
 function openLoad(){
   const saves=getSaves();
   const el=document.getElementById('saveList');
-  if(!saves.length){ el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center;font-family:var(--fb)">'+t('noSaves')+'</div>'; }
-  else el.innerHTML=saves.map((s,i)=>`<div class="save-item"><div style="flex:1"><div class="save-item-name">${s.name}</div><div class="save-item-date">${s.formation}${s.formationName?' · '+s.formationName:''} · ${new Date(s.ts).toLocaleString(lang,{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div></div><button class="btn b-g b-sm" onclick="loadSave(${i})">${t('loadBtn')}</button><button class="btn b-d b-sm" onclick="deleteSave(${i})">✕</button></div>`).join('');
+  if(!saves.length){ el.innerHTML='<div style="color:var(--text3);padding:20px;text-align:center;font-family:var(--fb)">Noch keine gespeicherten Pläne.</div>'; }
+  else el.innerHTML=saves.map((s,i)=>`<div class="save-item"><div style="flex:1"><div class="save-item-name">${s.name}</div><div class="save-item-date">${s.formation}${s.formationName?' · '+s.formationName:''} · ${new Date(s.ts).toLocaleString('de',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</div></div><button class="btn b-g b-sm" onclick="loadSave(${i})">Laden</button><button class="btn b-d b-sm" onclick="deleteSave(${i})">✕</button></div>`).join('');
   document.getElementById('modSave').classList.remove('hidden');
 }
-function loadSave(i){ const s=getSaves()[i]; if(!s)return; if(!confirm(`"${s.name}" ${t('loadConfirmSuffix')}`))return;
+function loadSave(i){ const s=getSaves()[i]; if(!s)return; if(!confirm(`"${s.name}" laden?`))return;
   formation=s.formation||'3-4-2-1'; formationName=s.formationName||'';
   lineup=s.lineup||{}; players=s.players||[]; slotSubs=s.slotSubs||{};
   posOffsets=s.posOffsets||{}; customRows=s.customRows||{};
   if(s.builtinSnapshot){ Object.keys(s.builtinSnapshot).forEach(f=>{ if(BUILTIN_FORMS[f]) BUILTIN_FORMS[f]=s.builtinSnapshot[f]; }); }
   if(s.SC)Object.assign(SC,s.SC); if(s.SCA)Object.assign(SCA,s.SCA); if(s.tacticNote){localStorage.setItem('fm26_tacticNote_'+(s.formation||''),s.tacticNote);}
-  document.getElementById('modSave').classList.add('hidden'); renderAll(); showToast('"'+s.name+'" '+t('loadedToast'),'var(--acc2)');
+  document.getElementById('modSave').classList.add('hidden'); renderAll(); showToast('"'+s.name+'" geladen','var(--acc2)');
 }
 function deleteSave(i){ const saves=getSaves(); saves.splice(i,1); localStorage.setItem(SK,JSON.stringify(saves)); openLoad(); }
 function showToast(msg,color){ const t=document.createElement('div'); t.style.cssText=`position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${color};color:#000;padding:8px 20px;border-radius:6px;font-family:var(--ff);font-weight:700;font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.4);white-space:nowrap`; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
@@ -2572,7 +2133,7 @@ function parseCSVOrHTML(text, filename){
       +'<span style="font-size:14px">'+(p.nation||'🌍')+'</span>'
       +'<div style="flex:1;min-width:0">'
         +'<div style="font-family:var(--ff);font-size:13px;font-weight:700">'+p.name+(exists?' <span style="font-size:9px;background:rgba(232,160,32,.2);color:var(--gold2);padding:1px 5px;border-radius:3px">vorhanden</span>':'')+'</div>'
-        +'<div style="font-size:10px;color:var(--text3)">'+p.position+' · '+(p.age||'?')+t('ageSuffix')+'. · '+(p.club||'')+'</div>'
+        +'<div style="font-size:10px;color:var(--text3)">'+p.position+' · '+(p.age||'?')+'J. · '+(p.club||'')+'</div>'
       +'</div>'
       +'<span style="font-size:10px;color:var(--acc2);font-family:var(--ff)">'+p.position+'</span>'
       +'<input type="checkbox" class="csv-check" data-idx="'+i+'" checked style="width:16px;height:16px;accent-color:var(--acc)">'
@@ -2653,8 +2214,7 @@ function parseCSV(text){
   const out=[];
   for(let i=1;i<lines.length;i++){
     const row=lines[i].split(sep).map(c=>c.replace(/^"|"$/g,'').trim());
-    let name=cols.name>=0?row[cols.name]:'';
-    name=name.replace(/\s*[-–—]\s*(Auswählen|Auswahlen|Select|Auswahl|Wählen)\s*$/i,'').replace(/\s+/g,' ').trim();
+    const name=cols.name>=0?row[cols.name]:'';
     if(!name||name.length<2) continue;
     out.push({
       name,
@@ -2678,14 +2238,10 @@ function parseHTML(text){
   const rows=[...div.querySelectorAll('table tr')];
   if(rows.length<2) return [];
 
-  // Header row: prefer a <th> row, else fall back to the first row (some FM
-  // exports emit headers as <td> in the first <tr>).
-  let headerRow=rows.find(r=>r.querySelector('th'));
-  let headerIsTh=!!headerRow;
-  if(!headerRow) headerRow=rows[0];
-  const headerCellSel=headerIsTh?'th':'td';
-  const headers=[...headerRow.querySelectorAll(headerCellSel)].map(c=>c.textContent.replace(/\s+/g,' ').trim());
-  try{ console.log('[FM Import] Erkannte Spalten:', headers); }catch(e){}
+  // FM24 exports headers as <th>, data as <td>
+  const headerRow=rows.find(r=>r.querySelector('th'));
+  if(!headerRow) return [];
+  const headers=[...headerRow.querySelectorAll('th')].map(c=>c.textContent.trim());
 
   function findCol(...keys){
     for(const k of keys){
@@ -2694,100 +2250,49 @@ function parseHTML(text){
     }
     return -1;
   }
-  // exact (whole-header) match, tried before fuzzy includes()
-  function findColExact(...keys){
-    for(const k of keys){
-      const i=headers.findIndex(h=>h.toLowerCase()===k.toLowerCase());
-      if(i>=0) return i;
-    }
-    return -1;
-  }
 
-  const iName = findCol('Spieler','Name','Player');
-  const iAge  = findColExact('Alter','Age')>=0?findColExact('Alter','Age'):findCol('Alter','Age','Geboren');
-  // NOTE: file may contain both "Ausgewählte Position" (VL/E4/TW…) and the real
-  // "Position" column (V (RL)…). Prefer the exact "Position" header.
-  let iPos = findColExact('Position','Positionen','Pos');
-  if(iPos<0) iPos = findCol('Position','Pos');
-  const iNat  = findColExact('Nation')>=0?findColExact('Nation'):findCol('Nation','Nat');
+  const iName = findCol('Name','Spieler','Player');
+  const iAge  = findCol('Alter','Age','Geboren');
+  const iPos  = findCol('Position','Pos');
+  const iNat  = findCol('Nation','Nat');
   const iClub = findCol('Verein','Club','Team');
   const iHier = findCol('Einsatzzeiten','Status','Hierarchie','Squad Status');
-  // "Ausgewählte Position" holds the concrete used position (VL, VR, VZL…),
-  // used as tiebreaker when the real Position column is ambiguous (e.g. "V (RL)").
-  const iSelPos = findCol('Ausgewählte Position','Ausgewählte Pos','Selected Position');
-  try{ console.log('[FM Import] Spaltenindizes → Name:'+iName+' Pos:'+iPos+' Alter:'+iAge+' Nat:'+iNat); }catch(e){}
   if(iName<0) return [];
 
-  // data rows = all rows except the header row itself
-  const dataRows=rows.filter(r=>r!==headerRow);
-
-  // FM24 position map. Takes the FULL cell (may contain several positions
-  // separated by commas, and newlines). Returns {main, alt}.
-  // "V (RL)" → main IV-ish by side; "OM (R), ST (Z)" → main OMR, alt ST
-  // sideHint: 'L' or 'R' derived from the "Ausgewählte Position" column, used
-  // to disambiguate two-sided defenders like "V (RL)" (no Z).
-  function mapOneFM24Pos(r, sideHint){
-    if(!r) return null;
-    r=r.replace(/\s+/g,' ').trim();
-    // Pattern: TYPE (SIDE) e.g. "V (Z)", "M (RL)", "FV (R)", "DM", "TW", "ST (Z)", "M/OM (Z)"
-    const m=r.match(/^([A-Za-z\/]+)\s*(?:\(([RLZCrlzc ]*)\))?/);
-    if(!m) return null;
-    const type=m[1].toUpperCase(), side=(m[2]||'').toUpperCase().replace(/\s/g,'');
-    const h=(sideHint||'').toUpperCase();
-    if(type==='TW'||type==='GK') return 'TW';
+  // FM24 position map: "V (Z)" → IV, "M (Z)" → ZM etc.
+  function mapFM24Pos(raw){
+    if(!raw) return 'ST';
+    const r=raw.split(',')[0].trim(); // take first position only
+    // Pattern: TYPE (SIDE) e.g. "V (Z)", "M (RL)", "FV (R)", "DM", "TW", "ST (Z)"
+    const m=r.match(/^([A-Z\/]+)\s*(?:\(([RLZC]*)\))?/);
+    if(!m) return 'ST';
+    const type=m[1].toUpperCase(), side=(m[2]||'').toUpperCase();
+    if(type==='TW') return 'TW';
     if(type==='V'||type==='V/FV'){
-      if(side.includes('Z')||side==='C'||side==='') return 'IV';
+      if(side==='Z'||side==='ZL'||side==='ZR'||side==='RLZ'||side==='C') return 'IV';
       if(side.includes('L')&&!side.includes('R')) return 'LAV';
       if(side.includes('R')&&!side.includes('L')) return 'RAV';
-      // both L and R (no Z) → use hint from Ausgewählte Position
-      if(h==='L') return 'LAV';
-      if(h==='R') return 'RAV';
-      return 'RAV';
+      return 'IV';
     }
     if(type==='FV'){
       if(side.includes('L')&&!side.includes('R')) return 'LFV';
       if(side.includes('R')&&!side.includes('L')) return 'RFV';
-      if(h==='L') return 'LFV';
-      if(h==='R') return 'RFV';
       return 'RFV';
     }
     if(type==='DM'||type==='DM/M') return 'DM';
-    if(type==='M'||type==='M/OM'||type==='M/AM'){
-      if(side.includes('Z')) return 'ZM';
-      if(side.includes('L')&&!side.includes('R')) return 'ZML';
-      if(side.includes('R')&&!side.includes('L')) return 'ZMR';
+    if(type==='M'||type==='M/OM'){
+      if(side.includes('L')&&!side.includes('R')&&!side.includes('Z')) return 'ZML';
+      if(side.includes('R')&&!side.includes('L')&&!side.includes('Z')) return 'ZMR';
       return 'ZM';
     }
-    if(type==='OM'||type==='AM'){
-      if(side.includes('Z')) return 'OM';
-      if(side.includes('L')&&!side.includes('R')) return 'OML';
-      if(side.includes('R')&&!side.includes('L')) return 'OMR';
+    if(type==='OM'){
+      if(side.includes('L')&&!side.includes('R')&&!side.includes('Z')) return 'OML';
+      if(side.includes('R')&&!side.includes('L')&&!side.includes('Z')) return 'OMR';
       return 'OM';
     }
-    if(type==='ST'||type==='SC'||type==='CF') return 'ST';
-    if(type==='HS'||type==='SS') return 'HS';
-    return null;
-  }
-
-  function mapFM24Positions(raw, sideHint){
-    if(!raw) return {main:'ST',alt:null};
-    // split into position tokens by comma, but keep "V (RL)" intact.
-    // FM cell may look like: "V (RL)" or "OM (R),\nST (Z)" or "V (Z), DM"
-    const parts=raw.split(',').map(p=>p.replace(/\s+/g,' ').trim()).filter(Boolean);
-    const mapped=parts.map(p=>mapOneFM24Pos(p, sideHint)).filter(Boolean);
-    const main=mapped[0]||'ST';
-    const alt=mapped.find(p=>p!==main)||null;
-    return {main,alt};
-  }
-
-  // Derive L/R hint from the "Ausgewählte Position" abbreviation (VL, VR, VZL, VZR…)
-  function sideHintFromSel(sel){
-    if(!sel) return '';
-    const s=sel.toUpperCase();
-    // strip trailing Z (central marker) so "VZL" → left, "VZR" → right
-    if(/L$/.test(s)) return 'L';
-    if(/R$/.test(s)) return 'R';
-    return '';
+    if(type==='ST') return 'ST';
+    if(type==='HS') return 'HS';
+    return 'ST';
   }
 
   // FIFA 3-letter country code → flag emoji
@@ -2822,34 +2327,19 @@ function parseHTML(text){
   };
 
   const out=[];
-  for(const row of dataRows){
+  for(const row of rows){
     const cells=[...row.querySelectorAll('td')];
     if(!cells.length) continue;
     const g=i=>i>=0&&cells[i]?cells[i].textContent.trim():'';
-    let name=g(iName);
-    // FM export appends an action link (e.g. "- Auswählen" / "- Select") in the name cell — strip it
-    name=name.replace(/\s*[-–—]\s*(Auswählen|Auswahlen|Select|Auswahl|Wählen)\s*$/i,'').trim();
-    // collapse repeated whitespace/newlines from cell markup
-    name=name.replace(/\s+/g,' ').trim();
+    const name=g(iName);
     if(!name||name.length<2) continue;
-    // position cell may separate positions with <br> instead of comma
-    let rawPos='';
-    if(iPos>=0&&cells[iPos]){
-      rawPos=cells[iPos].innerHTML
-        .replace(/<br\s*\/?>/gi,',')
-        .replace(/<[^>]+>/g,'')
-        .replace(/&nbsp;/gi,' ')
-        .replace(/&amp;/gi,'&')
-        .trim();
-    }
+    const rawPos=g(iPos);
     const rawNat=g(iNat);
     const rawHier=g(iHier).toLowerCase();
-    const sideHint=sideHintFromSel(g(iSelPos));
-    const pos=mapFM24Positions(rawPos, sideHint);
     out.push({
       name,
-      position: pos.main,
-      altPos:   pos.alt,
+      position: mapFM24Pos(rawPos),
+      altPos:   null,
       age:      parseInt(g(iAge))||null,
       nation:   CC2FLAG[rawNat]||null,
       club:     g(iClub),
@@ -2972,7 +2462,11 @@ async function runImportAI(b64, mimeType){
 
   const apiKey=document.getElementById('apiKeyImport')?.value?.trim();
   const headers={'Content-Type':'application/json'};
-  if(apiKey) headers['x-api-key']=apiKey;
+  if(apiKey){
+    headers['x-api-key']=apiKey;
+    headers['anthropic-version']='2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access']='true';
+  }
 
   const prompt=`Du analysierst einen Football Manager (FM) Kader-Screenshot. Extrahiere ALLE sichtbaren Spieler als JSON.
 
@@ -3010,16 +2504,16 @@ Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
 [{"name":"Vollständiger Name","position":"TW|IV|LAV|RAV|DM|ZM|OM|LA|RA|ST|HS","age":N,"nation":"🏳️","number":N_oder_null}]`
 
   try{
-    const PROXY=window.CLAUDE_PROXY||'https://api.anthropic.com/v1/messages';
-    // When using proxy, only send Content-Type (proxy adds the API key)
-    const fetchHeaders=PROXY.includes('workers.dev')||PROXY.includes('cloudflare')
-      ? {'Content-Type':'application/json'}
-      : headers;
-    const resp=await fetch(PROXY,{
+    // If the user entered their own API key, call the Anthropic API directly
+    // (bypasses the proxy). Only without a key do we use the proxy.
+    const useProxy=!apiKey && window.CLAUDE_PROXY;
+    const ENDPOINT=useProxy ? window.CLAUDE_PROXY : 'https://api.anthropic.com/v1/messages';
+    const fetchHeaders=useProxy ? {'Content-Type':'application/json'} : headers;
+    const resp=await fetch(ENDPOINT,{
       method:'POST',
       headers:fetchHeaders,
       body:JSON.stringify({
-        model:'claude-haiku-4-5',
+        model:'claude-haiku-5-5',
         max_tokens:2000,
         messages:[{
           role:'user',
@@ -3030,7 +2524,11 @@ Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
         }]
       })
     });
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    if(!resp.ok){
+      let detail='';
+      try{ const err=await resp.json(); detail=err.error?.message||err.message||JSON.stringify(err); }catch(_){ try{ detail=await resp.text(); }catch(__){} }
+      throw new Error('HTTP '+resp.status+(detail?' — '+detail.slice(0,180):''));
+    }
     const data=await resp.json();
     const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
     const m=text.match(/\[\s*\{[\s\S]*?\}\s*\]/);
@@ -3052,7 +2550,7 @@ Antworte NUR mit JSON-Array, kein Text davor/danach, kein Markdown:
         +'<span style="font-size:16px">'+(p.nation||'🏴')+'</span>'
         +'<div style="flex:1;min-width:0">'
           +'<div style="font-family:var(--ff);font-size:13px;font-weight:700">'+p.name+dupl+'</div>'
-          +'<div style="font-size:10px;color:var(--text3)">'+(p.position||'?')+' · '+(p.age||'?')+t('ageSuffix')+'. '+(p.number?'#'+p.number:'')+'</div>'
+          +'<div style="font-size:10px;color:var(--text3)">'+(p.position||'?')+' · '+(p.age||'?')+'J. '+(p.number?'#'+p.number:'')+'</div>'
         +'</div>'
         +'<span style="background:'+posC+'22;color:'+posC+';padding:2px 7px;border-radius:3px;font-family:var(--ff);font-size:10px;font-weight:700">'+(p.position||'?')+'</span>'
         +'<input type="checkbox" class="import-check" data-idx="'+i+'" checked style="width:16px;height:16px;accent-color:var(--acc)">'
@@ -3114,10 +2612,20 @@ async function doSearch(q){
   try{
     const apiKey=document.getElementById('apiKeyInput')?.value?.trim();
     const headers={'Content-Type':'application/json'};
-    if(apiKey) headers['x-api-key']=apiKey;
-    const PROXY=window.CLAUDE_PROXY||'https://api.anthropic.com/v1/messages';
-    const resp=await fetch(PROXY,{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:`Search fminside.net for FM26 player "${q}". Find profiles at fminside.net/players/7-fm262/NNNN-name. Return ONLY valid JSON array, no markdown. Max 8 results. Format: [{"name":"...","age":N,"position":"TW|IV|LAV|RAV|DM|ZM|OM|LA|RA|ST|HS","club":"...","fmId":"NNNNNN","nation":"flag-emoji"}]. fmId is the numeric URL part. Return [] if nothing found.`}]})});
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    if(apiKey){
+      headers['x-api-key']=apiKey;
+      headers['anthropic-version']='2023-06-01';
+      headers['anthropic-dangerous-direct-browser-access']='true';
+    }
+    const useProxy=!apiKey && window.CLAUDE_PROXY;
+    const ENDPOINT=useProxy ? window.CLAUDE_PROXY : 'https://api.anthropic.com/v1/messages';
+    const fetchHeaders=useProxy ? {'Content-Type':'application/json'} : headers;
+    const resp=await fetch(ENDPOINT,{method:'POST',headers:fetchHeaders,body:JSON.stringify({model:'claude-sonnet-5-5',max_tokens:1500,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:`Search fminside.net for FM26 player "${q}". Find profiles at fminside.net/players/7-fm262/NNNN-name. Return ONLY valid JSON array, no markdown. Max 8 results. Format: [{"name":"...","age":N,"position":"TW|IV|LAV|RAV|DM|ZM|OM|LA|RA|ST|HS","club":"...","fmId":"NNNNNN","nation":"flag-emoji"}]. fmId is the numeric URL part. Return [] if nothing found.`}]})});
+    if(!resp.ok){
+      let detail='';
+      try{ const err=await resp.json(); detail=err.error?.message||err.message||JSON.stringify(err); }catch(_){ try{ detail=await resp.text(); }catch(__){} }
+      throw new Error('HTTP '+resp.status+(detail?' — '+detail.slice(0,180):''));
+    }
     const data=await resp.json();
     const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
     const m=text.match(/\[[\s\S]*?\]/);
@@ -3287,57 +2795,26 @@ async function buildTVCanvas(includeSubs=false){
   // ── Pitch background ─────────────────────────────
   const PT=HDR+14, PH=H-PT-14;
   const PL=24, PR=PW-24;
-  const PWID=PR-PL;
-  // Use the user's actual pitch colour (falls back to default grass green)
-  const pitchEl=document.getElementById('pitch');
-  let grass = (pitchEl && pitchEl.style.background) ? pitchEl.style.background : '#376b37';
-  if(!/^#|rgb/.test(grass)) grass='#376b37';
-  // helper: parse to rgb
-  function toRGB(c){
-    if(c[0]==='#'){ const h=c.slice(1); const n=h.length===3?h.split('').map(x=>x+x).join(''):h; return [parseInt(n.slice(0,2),16),parseInt(n.slice(2,4),16),parseInt(n.slice(4,6),16)]; }
-    const m=c.match(/\d+/g); return m?[+m[0],+m[1],+m[2]]:[55,107,55];
-  }
-  const [gr,gg,gb]=toRGB(grass);
-  const clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
-  // base grass with soft vertical lighting
-  ctx.save();
-  rr(ctx,PL,PT,PWID,PH,16); ctx.clip();
-  const baseGrad=ctx.createLinearGradient(PL,PT,PL,PT+PH);
-  baseGrad.addColorStop(0, `rgb(${clamp(gr*1.12)},${clamp(gg*1.12)},${clamp(gb*1.12)})`);
-  baseGrad.addColorStop(0.5, grass);
-  baseGrad.addColorStop(1, `rgb(${clamp(gr*0.82)},${clamp(gg*0.82)},${clamp(gb*0.82)})`);
-  ctx.fillStyle=baseGrad; ctx.fillRect(PL,PT,PWID,PH);
-  // mowing stripes (horizontal bands, alternating lighter/darker)
-  const bands=9;
-  for(let i=0;i<bands;i++){
-    const y=PT+ (PH/bands)*i;
-    ctx.fillStyle = i%2===0 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)';
-    ctx.fillRect(PL, y, PWID, PH/bands);
-  }
-  // soft lighting overlay (top highlight, bottom vignette)
-  const lg=ctx.createRadialGradient(PL+PWID/2,PT+PH*0.28,PH*0.1, PL+PWID/2,PT+PH*0.5,PH*0.9);
-  lg.addColorStop(0,'rgba(255,255,255,0.08)'); lg.addColorStop(1,'rgba(0,0,0,0.22)');
-  ctx.fillStyle=lg; ctx.fillRect(PL,PT,PWID,PH);
-  ctx.restore();
-  // border
-  ctx.strokeStyle='rgba(255,255,255,0.14)'; ctx.lineWidth=2;
-  rr(ctx,PL,PT,PWID,PH,16); ctx.stroke();
+  const pitchGrad=ctx.createLinearGradient(PL,PT,PL,PT+PH);
+  pitchGrad.addColorStop(0,'rgba(0,40,30,0.5)');
+  pitchGrad.addColorStop(0.5,'rgba(0,55,40,0.4)');
+  pitchGrad.addColorStop(1,'rgba(0,40,30,0.5)');
+  ctx.fillStyle=pitchGrad; rr(ctx,PL,PT,PR-PL,PH,16); ctx.fill();
+  ctx.strokeStyle='rgba(0,200,180,0.15)'; ctx.lineWidth=1.5;
+  rr(ctx,PL,PT,PR-PL,PH,16); ctx.stroke();
 
-  // Pitch markings (brighter, matching the app)
+  // Pitch markings
   const ML=PL+40, MR=PR-40, MT=PT+36, MB=PT+PH-36;
   const IW=MR-ML, IH=MB-MT;
-  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2.5;
-  ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=3;
+  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=1.5;
+  ctx.shadowColor='rgba(255,255,255,0.1)'; ctx.shadowBlur=4;
   ctx.strokeRect(ML,MT,IW,IH);
   ctx.beginPath(); ctx.moveTo(ML,MT+IH/2); ctx.lineTo(MR,MT+IH/2); ctx.stroke();
   // Centre circle
   ctx.beginPath(); ctx.arc(ML+IW/2,MT+IH/2,IH*0.09,0,Math.PI*2); ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(255,255,255,0.6)';
+  ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.beginPath(); ctx.arc(ML+IW/2,MT+IH/2,4,0,Math.PI*2); ctx.fill();
   // Penalty areas
-  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2.5;
-  ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=3;
   const paW=IW*0.44, paH=IH*0.16;
   ctx.strokeRect(ML+(IW-paW)/2,MT,paW,paH);
   ctx.strokeRect(ML+(IW-paW)/2,MB-paH,paW,paH);
@@ -3345,7 +2822,7 @@ async function buildTVCanvas(includeSubs=false){
   ctx.strokeRect(ML+(IW-gaW)/2,MT,gaW,gaH);
   ctx.strokeRect(ML+(IW-gaW)/2,MB-gaH,gaW,gaH);
   // Penalty spots
-  ctx.fillStyle='rgba(255,255,255,0.6)';
+  ctx.fillStyle='rgba(255,255,255,0.35)';
   ctx.beginPath(); ctx.arc(ML+IW/2,MT+IH*0.12,3,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(ML+IW/2,MB-IH*0.12,3,0,Math.PI*2); ctx.fill();
   ctx.shadowBlur=0;
@@ -3449,20 +2926,16 @@ async function buildTVCanvas(includeSubs=false){
       ctx.fillText(String(p.number),bx,by);
     }
 
-    // Position label — above circle (pill, matching app style)
+    // Position label — above circle (pill)
     const posLbl=slot.l;
-    ctx.font=`bold 12px "Arial Narrow",Arial,sans-serif`;
-    const pw=ctx.measureText(posLbl).width+18;
-    const px=cx-pw/2, py=cy-R-28;
-    ctx.save();
-    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=6;
-    ctx.fillStyle='rgba(20,24,40,0.95)';
-    rr(ctx,px,py,pw,19,5); ctx.fill();
-    ctx.restore();
-    ctx.strokeStyle=catC+'aa'; ctx.lineWidth=1.5;
-    rr(ctx,px,py,pw,19,5); ctx.stroke();
+    ctx.font=`bold 11px "Arial Narrow",Arial,sans-serif`;
+    const pw=ctx.measureText(posLbl).width+16;
+    const px=cx-pw/2, py=cy-R-26;
+    ctx.fillStyle=catC+'dd';
+    rr(ctx,px,py,pw,18,4); ctx.fill();
+    ctx.fillStyle='#000a'; rr(ctx,px+1,py+1,pw-2,16,3); ctx.fill();
     ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(posLbl,cx,py+10);
+    ctx.fillText(posLbl,cx,py+9);
 
     // Name pill — below circle
     const lastName=p.name.trim().split(' ').pop();
@@ -3478,49 +2951,18 @@ async function buildTVCanvas(includeSubs=false){
     ctx.fillText(lastName,cx,ny+11);
   }
 
-  // Compact substitute row for the export (name chip under the starter)
-  function drawSubRow(p, slot, cx, topY){
-    const catC=slot.c==='gk'?'#f5c842':slot.c==='def'?'#2ecc71':slot.c==='mid'?'#5b6af5':'#e74c3c';
-    const name=p.name.trim().split(' ').pop();
-    ctx.font=`600 15px "Arial Narrow",Arial,sans-serif`;
-    const tw=ctx.measureText(name).width;
-    const w=tw+34, h=24;
-    const x=cx-w/2, y=topY;
-    // chip bg
-    ctx.fillStyle='rgba(8,10,22,0.9)';
-    rr(ctx,x,y,w,h,11); ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
-    rr(ctx,x,y,w,h,11); ctx.stroke();
-    // colored dot
-    ctx.save(); ctx.shadowColor=catC; ctx.shadowBlur=6;
-    ctx.fillStyle=catC; ctx.beginPath(); ctx.arc(x+13,y+h/2,4.5,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-    // name
-    ctx.fillStyle='rgba(230,230,248,0.95)'; ctx.textAlign='left'; ctx.textBaseline='middle';
-    ctx.fillText(name, x+24, y+h/2+1);
-    return h+5; // height incl. gap
-  }
-
-  // Group entries by slot so subs stack under their starter
-  const bySlot={};
-  starters.forEach(e=>{ (bySlot[e.slot.k]=bySlot[e.slot.k]||[]).push(e); });
-
-  const BASE_R=44;
-  Object.values(bySlot).forEach(entries=>{
-    entries.sort((a,b)=>a.subIdx-b.subIdx);
-    const main=entries[0]; const slot=main.slot;
+  // Draw all starters (including sub-slots)
+  const BASE_R=46;
+  starters.forEach(({slot,p,subIdx})=>{
     const off=posOffsets[slot.k]||{dx:0,dy:0};
     const xPct=Math.max(3,Math.min(97,(slot.x||50)+(off.dx||0)))/100;
     const yPct=Math.max(3,Math.min(97,(slot._baseY||50)+(off.dy||0)/pitchElH*100))/100;
     const cx=ML+xPct*IW;
-    const cy=MT+yPct*IH;
-    // starter circle
-    drawStarter(main.p,slot,cx,cy,BASE_R,false);
-    // subs as compact rows below the name pill
-    let rowY=cy+BASE_R+34; // below starter name pill
-    entries.slice(1).forEach(({p})=>{
-      rowY += drawSubRow(p,slot,cx,rowY);
-    });
+    // Sub-slots shown slightly below and smaller
+    const subOffset=subIdx*(BASE_R*2.4+40); // enough space below name pill
+    const cy=MT+yPct*IH+subOffset;
+    const subR=subIdx===0?BASE_R:Math.round(BASE_R*0.65);
+    drawStarter(p,slot,cx,cy,subR,subIdx>0);
   });
 
   // ── Sidebar content ──────────────────────────────
@@ -3530,7 +2972,7 @@ async function buildTVCanvas(includeSubs=false){
   ctx.font=`bold 13px "Arial Narrow",Arial,sans-serif`;
   ctx.fillStyle='rgba(0,200,180,0.9)'; ctx.textAlign='left'; ctx.textBaseline='top';
   ctx.letterSpacing='2px';
-  ctx.fillText(t('sectionSquad').toUpperCase(), SX2, 24);
+  ctx.fillText('KADER', SX2, 24);
   ctx.letterSpacing='0px';
   ctx.fillStyle='rgba(0,200,180,0.2)'; ctx.fillRect(SX2,44,SW,1);
 
@@ -3591,7 +3033,7 @@ async function buildTVCanvas(includeSubs=false){
     if(p.age){
       ctx.font=`10px "Arial Narrow",Arial,sans-serif`;
       ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.textAlign='left';
-      ctx.fillText(p.age+t('ageSuffix'), textX+pw2+6, ay+9);
+      ctx.fillText(p.age+'J', textX+pw2+6, ay+9);
     }
     ctx.restore();
   }
@@ -3608,7 +3050,7 @@ async function buildTVCanvas(includeSubs=false){
   }
 
   if(bench.length){
-    drawSectionHeader(t('sectionSub').toUpperCase(),'rgba(0,200,180,0.6)');
+    drawSectionHeader('ERSATZ','rgba(0,200,180,0.6)');
     bench.forEach(p=>{
       if(sbY+cardH>H-20) return;
       drawSideCard(p, SX2, sbY, SW, cardH, false);
@@ -3619,7 +3061,7 @@ async function buildTVCanvas(includeSubs=false){
 
   if(unassigned.length){
     ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(SX2,sbY,SW,1); sbY+=10;
-    drawSectionHeader(t('sectionSquad').toUpperCase(),'rgba(180,180,220,0.5)');
+    drawSectionHeader('KADER','rgba(180,180,220,0.5)');
     unassigned.forEach(p=>{
       if(sbY+cardH>H-20) return;
       drawSideCard(p, SX2, sbY, SW, cardH, true);
@@ -3716,7 +3158,7 @@ function closeNote(){
 // ══════════════════════════════════
 // MISC
 // ══════════════════════════════════
-function clearLineup(){ if(!confirm(t('clearConfirm')))return; pushUndo(); lineup={}; slotSubs={}; posOffsets={}; collapsedSlots=new Set(); renderAll(); }
+function clearLineup(){ if(!confirm('Aufstellung leeren?'))return; pushUndo(); lineup={}; slotSubs={}; posOffsets={}; collapsedSlots=new Set(); renderAll(); }
 let _clearStep=0;
 function openClearConfirm(){
   const n=players.length;
@@ -3750,8 +3192,8 @@ function removeFromLineup(id){
   });
   renderAll();
 }
-function resetBVB(){ if(!confirm(t('resetConfirm')))return; formation='3-4-2-1'; initBVB(); renderAll(); }
-function promptTeam(){ const lbl=document.getElementById('teamLbl'); const cur=lbl.style.fontStyle==='italic'?'':lbl.textContent; const v=prompt(t('renameTeamPrompt'),cur); if(v&&v.trim()){lbl.textContent=v.trim();lbl.style.opacity='';lbl.style.fontStyle='';} }
+function resetBVB(){ if(!confirm('BVB FM26.2 laden?'))return; formation='3-4-2-1'; initBVB(); renderAll(); }
+function promptTeam(){ const lbl=document.getElementById('teamLbl'); const cur=lbl.style.fontStyle==='italic'?'':lbl.textContent; const v=prompt('Vereinsname / Savename:',cur); if(v&&v.trim()){lbl.textContent=v.trim();lbl.style.opacity='';lbl.style.fontStyle='';} }
 
 // RESIZE HANDLE
 (function(){
@@ -3780,15 +3222,6 @@ document.addEventListener('DOMContentLoaded',()=>{ document.querySelectorAll('.l
 // RENDER ALL
 function renderAll(){ renderFTabs(); renderPPills(); renderColH(); renderList(); loadNote(); requestAnimationFrame(()=>requestAnimationFrame(renderPitch)); document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('on',b.dataset.lang===lang)); }
 window.addEventListener('resize',()=>requestAnimationFrame(renderPitch));
-// Re-render pitch whenever its container changes size (panel resize, sidebar drag)
-(function(){
-  const sc=document.querySelector('.pscroll');
-  if(sc && 'ResizeObserver' in window){
-    let raf;
-    const ro=new ResizeObserver(()=>{ cancelAnimationFrame(raf); raf=requestAnimationFrame(renderPitch); });
-    ro.observe(sc);
-  }
-})();
 document.addEventListener('dragover',moveGhost);
 
 // Clean up broken formation tabs (id starts with cf_ but name is also cf_...)
@@ -3804,66 +3237,6 @@ initBVB();
 renderAll();
 // Apply saved lang on startup
 setLang(lang);
-// Ensure pitch fits after fonts/layout settle
-window.addEventListener('load',()=>{ fitPitch(); renderPitch(); });
-[100,300,600].forEach(ms=>setTimeout(()=>{ fitPitch(); renderPitch(); }, ms));
-
-// ── Global styled hover tooltips ──────────────────
-// Reuses existing `title` attributes: shows a styled tooltip near the element
-// and temporarily removes the native `title` so both don't appear.
-(function(){
-  const tipEl=document.createElement('div');
-  tipEl.id='hoverTip';
-  document.body.appendChild(tipEl);
-  let cur=null;
-
-  function place(el){
-    const r=el.getBoundingClientRect();
-    tipEl.style.left='0px'; tipEl.style.top='0px';
-    tipEl.classList.add('show');
-    const tw=tipEl.offsetWidth, th=tipEl.offsetHeight;
-    const gap=8, pad=6;
-    // Prefer right side; if it would overflow the viewport, place below/left.
-    let x=r.right+gap, y=r.top+r.height/2-th/2;
-    if(x+tw>window.innerWidth-pad){
-      // try left
-      const xl=r.left-gap-tw;
-      if(xl>=pad){ x=xl; }
-      else { // place below, centered
-        x=Math.min(Math.max(pad, r.left+r.width/2-tw/2), window.innerWidth-tw-pad);
-        y=r.bottom+gap;
-      }
-    }
-    y=Math.min(Math.max(pad,y), window.innerHeight-th-pad);
-    tipEl.style.left=x+'px';
-    tipEl.style.top=y+'px';
-  }
-
-  document.addEventListener('mouseover',e=>{
-    const el=e.target.closest('[title]');
-    if(!el){ return; }
-    const txt=el.getAttribute('title');
-    if(!txt||!txt.trim()){ return; }
-    cur=el;
-    // stash & strip native title to avoid the default OS tooltip
-    el.setAttribute('data-tiptext',txt);
-    el.removeAttribute('title');
-    tipEl.textContent=txt;
-    place(el);
-  });
-  document.addEventListener('mouseout',e=>{
-    const el=e.target.closest('[data-tiptext]');
-    if(!el) return;
-    // restore native title
-    const txt=el.getAttribute('data-tiptext');
-    if(txt!=null){ el.setAttribute('title',txt); el.removeAttribute('data-tiptext'); }
-    if(cur===el) cur=null;
-    tipEl.classList.remove('show');
-  });
-  // Hide on scroll / click so it never gets stuck
-  window.addEventListener('scroll',()=>{ tipEl.classList.remove('show'); },true);
-  document.addEventListener('mousedown',()=>{ tipEl.classList.remove('show'); });
-})();
 </script>
 <div id="noteTooltip" class="note-tooltip"><div class="nt-head" id="ntHead"></div><div id="ntBody"></div></div>
 <div id="dragGhost"><div class="dg-circle"><span id="dgIni"></span></div><div class="dg-name" id="dgName"></div></div>
